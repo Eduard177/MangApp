@@ -30,20 +30,24 @@ export default function MangaList() {
 
   return (
     <View className="p-4">
+      <Text className="text-xl font-bold mb-2">Popular Manga</Text>
       {loading ? (
         <ActivityIndicator size="large" />
       ) : (
         <FlatList
           data={mangas}
+          horizontal
+          showsHorizontalScrollIndicator={false}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <View className="mb-4 flex-row items-center space-x-4">
+            <View className="mr-4" style={{ width: 120 }}>
               <Image
                 source={{ uri: getCoverUrl(item) }}
-                style={{ width: 70, height: 100, borderRadius: 6 }}
+                style={{ width: '100%', height: 150, borderRadius: 8 }}
+                resizeMode="cover"
               />
-              <Text className="text-lg font-semibold flex-1">
-                {item.attributes.title.en || 'Sin título'}
+              <Text className="text-base font-semibold mt-2" numberOfLines={2} ellipsizeMode="tail">
+                {item.attributes.title.en ?? item.attributes.title.esla ?? 'Sin título'}
               </Text>
             </View>
           )}
