@@ -1,15 +1,20 @@
 import { View, Text, FlatList, ActivityIndicator, ScrollView, Pressable } from 'react-native';
 import { useEffect, useState } from 'react';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import { getChaptersByMangaId } from '../services/mangadexApi';
 
+type RootStackParamList = {
+  MangaDetails: { manga: any };
+  ChapterReader: { chapterId: string };
+};
+
 export default function MangaDetailScreen() {
-  const route = useRoute<RouteProp<any>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'MangaDetails'>>();
   const { manga } = route.params;
 
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const fetchChapters = async () => {
     try {

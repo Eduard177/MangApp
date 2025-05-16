@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { featchGetChapterPages } from '../services/mangaService';
-import { getChapterPagesExternal, getChaptersByMangaId } from '../services/mangadexApi';
+import { getChapterPagesExternal } from '../services/mangadexApi';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
