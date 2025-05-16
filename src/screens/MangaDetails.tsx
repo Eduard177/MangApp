@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator, ScrollView, Pressable } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Pressable } from 'react-native';
 import { useEffect, useState } from 'react';
 import { RouteProp, useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import { getChaptersByMangaId } from '../services/mangadexApi';
@@ -11,20 +11,37 @@ type RootStackParamList = {
 export default function MangaDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'MangaDetails'>>();
   const { manga } = route.params;
-
-  const [chapters, setChapters] = useState([]);
-  const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  const [chapters, setChapters] = useState<any[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
+
+  const limit = 20;
+
   const fetchChapters = async () => {
+    if (loading || !hasMore) return;
+    setLoading(true);
     try {
-      setLoading(true);
-      const data = await getChaptersByMangaId(manga.id);
-      setChapters(data.data);
+      const response = await getChaptersByMangaId(manga.id, limit, offset);
+      const newChapters = response.data ?? [];
+
+      // Evita duplicados por ID
+      setChapters((prev) => {
+        const existingIds = new Set(prev.map((c) => c.id));
+        const filtered = newChapters.filter((c) => !existingIds.has(c.id));
+        return [...prev, ...filtered];
+      });
+
+      setOffset((prev) => prev + limit);
+      setHasMore(newChapters.length === limit);
     } catch (error) {
       console.error('Error fetching chapters:', error);
     } finally {
       setLoading(false);
+      setInitialLoadDone(true);
     }
   };
 
@@ -32,32 +49,39 @@ export default function MangaDetailScreen() {
     fetchChapters();
   }, []);
 
-  return (
-    <ScrollView className="p-4 bg-white dark:bg-black">
-      <Text className="text-2xl font-bold mb-2">{manga.attributes.title.en ?? 'Sin título'}</Text>
-
-      <Text className="text-base mb-4 text-gray-700 dark:text-gray-300">
-        {manga.attributes.description?.en ?? 'Sin descripción disponible.'}
+  const renderChapter = ({ item }: { item: any }) => (
+    <Pressable onPress={() => navigation.navigate('ChapterReader', { chapterId: item.id })}>
+      <Text className="text-base py-2 border-b border-gray-200 dark:border-gray-700">
+        Capítulo {item.attributes.chapter ?? 'N/A'}: {item.attributes.title ?? ''}
       </Text>
+    </Pressable>
+  );
 
-      <Text className="text-xl font-semibold mb-2">Capítulos:</Text>
-
-      {loading ? (
-        <ActivityIndicator size="large" />
-      ) : (
-        <FlatList
-          data={chapters}
-          keyExtractor={(item) => item.id}
-          scrollEnabled={false}
-          renderItem={({ item }) => (
-            <Pressable onPress={() => navigation.navigate('ChapterReader', { chapterId: item.id })}>
-              <Text className="text-base py-2 border-b border-gray-200 dark:border-gray-700">
-                Capítulo {item.attributes.chapter ?? 'N/A'}: {item.attributes.title ?? ''}
-              </Text>
-            </Pressable>
+  return (
+    <FlatList
+      className="bg-white dark:bg-black p-4"
+      data={chapters}
+      keyExtractor={(item, index) => `${item.id}-${index}`}
+      renderItem={renderChapter}
+      onEndReached={fetchChapters}
+      onEndReachedThreshold={0.5}
+      ListHeaderComponent={
+        <View>
+          <Text className="text-2xl font-bold mb-2">
+            {manga.attributes.title.en ?? 'Sin título'}
+          </Text>
+          <Text className="text-base mb-4 text-gray-700 dark:text-gray-300">
+            {manga.attributes.description?.en ?? 'Sin descripción disponible.'}
+          </Text>
+          <Text className="text-xl font-semibold mb-2">Capítulos:</Text>
+          {initialLoadDone && chapters.length === 0 && (
+            <Text className="text-base text-gray-500 dark:text-gray-400 italic">
+              No hay capítulos disponibles para este manga.
+            </Text>
           )}
-        />
-      )}
-    </ScrollView>
+        </View>
+      }
+      ListFooterComponent={loading ? <ActivityIndicator size="small" className="my-4" /> : null}
+    />
   );
 }
