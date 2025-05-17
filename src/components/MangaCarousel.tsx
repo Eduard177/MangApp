@@ -4,16 +4,16 @@ import { useNavigation } from '@react-navigation/native';
 
 interface MangaCarouselProps {
   title: string;
-  fetchFunction: () => Promise<any[]>;
+  fetchFunction: () => Promise<any[]> | any[];
 }
-
-const getCoverUrl = (manga: any) => {
+export const getCoverUrl = (item: any) => {
+  const manga = item.manga ?? item; // soporte para historial y normal
   const fileName = manga?.relationships?.find((rel: any) => rel.type === 'cover_art')?.attributes
     ?.fileName;
   return fileName ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg` : null;
 };
 
-export default function MangaCarousel({ title, fetchFunction }: MangaCarouselProps) {
+export default function MangaCarousel({ title, fetchFunction }: Readonly<MangaCarouselProps>) {
   const [mangas, setMangas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -43,7 +43,7 @@ export default function MangaCarousel({ title, fetchFunction }: MangaCarouselPro
         <FlatList
           horizontal
           data={mangas}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item, index) => item?.id ?? `item-${index}`}
           showsHorizontalScrollIndicator={false}
           renderItem={({ item }) => (
             <Pressable
@@ -55,7 +55,7 @@ export default function MangaCarousel({ title, fetchFunction }: MangaCarouselPro
                 style={{ width: 120, height: 180, borderRadius: 8 }}
               />
               <Text className="mt-1 w-28 text-sm font-medium text-center">
-                {item.attributes.title.en ?? 'Sin título'}
+                {item.manga?.attributes?.title?.en ?? item.attributes?.title?.en ?? 'Sin título'}
               </Text>
             </Pressable>
           )}

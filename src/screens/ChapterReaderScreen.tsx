@@ -11,19 +11,21 @@ import {
 } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { featchGetChapterPages } from '../services/mangaService';
-import { getChapterPagesExternal } from '../services/mangadexApi';
+import { fetchMangaById, getChapterPagesExternal } from '../services/mangadexApi';
+import { addToReadingHistory } from '../services/storage';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 type RootStackParamList = {
   ChapterReader: {
     chapterId: string;
+    mangaId: string;
   };
 };
 
 export default function ChapterReader() {
   const route = useRoute<RouteProp<RootStackParamList, 'ChapterReader'>>();
-  const { chapterId } = route.params;
+  const { chapterId, mangaId } = route.params;
 
   const [isLoading, setIsLoading] = useState(true);
   const [chapterImages, setChapterImages] = useState<string[]>([]);
@@ -34,20 +36,38 @@ export default function ChapterReader() {
       try {
         setIsLoading(true);
         const res = await featchGetChapterPages(chapterId);
+        const manga = await fetchMangaById(mangaId);
         const { baseUrl, chapter } = res;
+        const url = await getChapterPagesExternal(chapterId);
+        const atributes = url?.data?.attributes;
 
         if (!chapter || chapter.data.length === 0) {
           // Capítulo externo
-          const url = await getChapterPagesExternal(chapterId);
-
-          const externalUrl = url.data.attributes.externalUrl;
-          console.log('URL:', externalUrl);
+          const externalUrl = atributes?.externalUrl;
           setExternalUrl(externalUrl);
+
+          // Agregar a historial de lectura con marca externa
+          await addToReadingHistory({
+            title: atributes?.title ?? 'without title',
+            chapter: atributes?.chapter,
+            chapterId,
+            isExternal: !!externalUrl,
+            manga,
+          });
         } else {
           const images = chapter.data.map(
             (fileName: string) => `${baseUrl}/data/${chapter.hash}/${fileName}`,
           );
           setChapterImages(images);
+
+          // Agregar a historial de lectura
+          await addToReadingHistory({
+            chapterId,
+            chapter: atributes?.chapter,
+            title: atributes?.title,
+            manga,
+            isExternal: false,
+          });
         }
       } catch (error) {
         console.error('Error fetching chapter images:', error);

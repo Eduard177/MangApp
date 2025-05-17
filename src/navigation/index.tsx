@@ -7,7 +7,9 @@ import ChapterReaderScreen from '../screens/ChapterReaderScreen';
 
 export type RootStackParamList = {
   Home: undefined;
-  Search: undefined;
+  MangaDetails: undefined;
+  ChapterReader: undefined;
+  SearchScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -22,7 +24,7 @@ export default function Navigation() {
         component={ChapterReaderScreen}
         options={{ title: 'Readding...' }}
       />
-      <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="SearchScreen" component={SearchScreen} />
     </Stack.Navigator>
   );
 }

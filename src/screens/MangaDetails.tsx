@@ -5,7 +5,7 @@ import { getChaptersByMangaId } from '../services/mangadexApi';
 
 type RootStackParamList = {
   MangaDetails: { manga: any };
-  ChapterReader: { chapterId: string };
+  ChapterReader: { chapterId: string; mangaId: string };
 };
 
 export default function MangaDetailScreen() {
@@ -44,13 +44,15 @@ export default function MangaDetailScreen() {
       setInitialLoadDone(true);
     }
   };
-
   useEffect(() => {
     fetchChapters();
   }, []);
+  const mangaId = manga.id;
 
   const renderChapter = ({ item }: { item: any }) => (
-    <Pressable onPress={() => navigation.navigate('ChapterReader', { chapterId: item.id })}>
+    <Pressable
+      onPress={() => navigation.navigate('ChapterReader', { chapterId: item.id, mangaId })}
+    >
       <Text className="text-base py-2 border-b border-gray-200 dark:border-gray-700">
         Capítulo {item.attributes.chapter ?? 'N/A'}: {item.attributes.title ?? ''}
       </Text>

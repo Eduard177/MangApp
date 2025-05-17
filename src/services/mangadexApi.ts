@@ -9,17 +9,20 @@ const api = axios.create({
 
 export const searchManga = async (
   title: string,
-  translatedLanguage: Array<String> = ['en'],
+  translatedLanguage: Array<string> = ['en'],
   limit: number = 10,
+  offset: number = 0,
 ) => {
   const response = await api.get('/manga', {
     params: {
       title,
       limit,
+      offset,
       availableTranslatedLanguage: translatedLanguage,
       order: {
-        title: 'asc',
+        followedCount: 'desc',
       },
+      includes: ['cover_art'],
     },
   });
   return response.data;
@@ -27,7 +30,7 @@ export const searchManga = async (
 
 export const getMangaChapters = async (
   mangaId: string,
-  translatedLanguage: Array<String> = ['en'],
+  translatedLanguage: Array<string> = ['en'],
   limit: number = 10,
 ) => {
   const response = await api.get(`/manga/${mangaId}/feed`, {
@@ -86,7 +89,7 @@ export const getChaptersByMangaId = async (
   mangaId: string,
   limit = 10,
   offset = 0,
-  translatedLanguage: Array<String> = ['en'],
+  translatedLanguage: Array<string> = ['en'],
 ) => {
   const response = await axios.get(`https://api.mangadex.org/chapter`, {
     params: {
@@ -116,4 +119,11 @@ export const getChapterPagesExternal = async (chapterId: string) => {
   const data = await response.json();
 
   return data;
+};
+
+export const fetchMangaById = async (mangaId: string) => {
+  const res = await axios.get(`https://api.mangadex.org/manga/${mangaId}`, {
+    params: { includes: ['cover_art'] },
+  });
+  return res.data.data;
 };

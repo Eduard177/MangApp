@@ -1,16 +1,20 @@
 import { View, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native'; // ajusta el path según tu proyecto
+import { RootStackParamList } from '../navigation';
 
 interface NavbarProps {
-  onSearch: () => void;
   onFilter: () => void;
   onReload: () => void;
 }
 
-export default function Navbar({ onSearch, onFilter, onReload }: Readonly<NavbarProps>) {
+export default function Navbar({ onFilter, onReload }: Readonly<NavbarProps>) {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   return (
-    <View className="flex flex-row items-center justify-between p-4 pt-14 bg-white dark:bg-black">
-      {/* Logo a la izquierda */}
+    <View className="flex flex-row justify-between items-center p-4 pt-12 bg-white dark:bg-black border-b border-gray-300 dark:border-gray-700">
+      {/* Logo */}
       <Image
         source={require('../assets/icon.png')}
         style={{ width: 40, height: 40 }}
@@ -18,14 +22,14 @@ export default function Navbar({ onSearch, onFilter, onReload }: Readonly<Navbar
         className="rounded-full"
       />
 
-      {/* Botones a la derecha */}
+      {/* Botones */}
       <View className="flex-row space-x-4">
-        <Pressable onPress={onSearch}>
+        <Pressable onPress={() => navigation.navigate('SearchScreen')}>
           <Ionicons name="search" size={28} color="black" />
         </Pressable>
 
         <Pressable onPress={onFilter}>
-          <Ionicons name="filter" size={28} color="black" />
+          <Ionicons name="options" size={28} color="black" />
         </Pressable>
 
         <Pressable onPress={onReload}>
