@@ -10,13 +10,15 @@
     "strict": false,
     "noEmit": true,
     "types": [
-      "nativewind/types"
+      "nativewind/types",
+      "react-native-svg"
     ]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "nativewind-env.d.ts"
+    "nativewind-env.d.ts",
+    "src", "src/types"
   ],
   "exclude": [
     "node_modules"
