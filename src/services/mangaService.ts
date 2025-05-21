@@ -10,9 +10,9 @@ export async function fetchPopularMangas(limit = 5, offset = 0) {
   }
 }
 
-export async function fetchMangaGender(genderArr: string[] = ['shonen']) {
+export async function fetchMangaGender(limit = 5, offset = 0, genderArr: string,) {
   try {
-    const response = await getGenderManga(genderArr);
+    const response = await getGenderManga(limit, offset, genderArr);
     return response.data;
   } catch (error) {
     console.error(`Error fetching chapters for manga ${genderArr}:`, error);

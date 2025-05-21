@@ -67,15 +67,15 @@ export const getPopularManga = async (limit = 5, offset = 0) => {
   }
 };
 
-export const getGenderManga = async (genderArr = ['shonen']) => {
+export const getGenderManga = async (limit = 5, offset = 0, genderArr = '') => {
   try {
     const res = await axios.get(`${BASE_URL}/manga`, {
       params: {
-        limit: 10,
-        offset: 0,
+        limit,
+        offset,
         'order[followedCount]': 'desc',
         includes: ['cover_art'],
-        includedTags: ['423e2eae-a7a2-4a8b-ac03-a8351462d71d'],
+        includedTags: [genderArr],
       },
     });
     return res.data;

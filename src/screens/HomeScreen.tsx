@@ -7,7 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getReadingHistory } from '../services/storage';
 import { transformHistoryToMangaData } from '../utils/transformHistoryToMangaData.util';
 import MainBar from '../components/MainBar';
-import GenreCarousel from '../components/GenderCarousel';
+import { GENRES } from '../utils/genres/genreConstants';
 
 export default function HomeScreen() {
   const [reloadFlag, setReloadFlag] = useState(true);
@@ -38,10 +38,14 @@ export default function HomeScreen() {
         )} */}
         <MangaCarousel title="Popular" fetchFunction={(limit, offset) => fetchPopularMangas(limit, offset)} />
 
-        <GenreCarousel onSelectGenre={(id) => console.log('Género seleccionado:', id)} />
-
-        <MangaCarousel title="Popular" fetchFunction={() => fetchPopularMangas()} />
-
+        {Object.entries(GENRES).map(([name, id]) => (
+          <MangaCarousel
+            key={id}
+            title={name.replace(/([A-Z])/g, ' $1').trim()} // convierte "SLICEOFLIFE" => "SLICEOFLIFE", o personaliza si quieres mejorar legibilidad
+            fetchFunction={(limit, offset, genreId) => fetchMangaGender(limit, offset, genreId)}
+            data={id}
+          />
+        ))}
       </ScrollView>
             <MainBar/>
     </View>

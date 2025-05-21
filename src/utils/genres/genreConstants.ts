@@ -1,0 +1,31 @@
+export const GENRES = {
+    THRILLER: '07251805-a27e-4d59-b488-f0bfbec15168',
+    SCIFI: '256c8bd9-4904-4360-bf4f-508a76d67183',
+    HISTORICAL: '33771934-028e-4cb3-8744-691e866a923e',
+    ACTION: '391b0423-d847-456f-aff0-8b0cfc03066b',
+    PSYCHOLOGICAL: '3b60b75c-a2d7-4860-ab56-05f391bb889c',
+    ROMANCE: '423e2eae-a7a2-4a8b-ac03-a8351462d71d',
+    COMEDY: '4d32cc48-9f00-4cca-9b5a-a839f0764984',
+    MECHA: '50880a9d-5440-4732-9afb-8f457127e836',
+    BOYSLOVE: '5920b825-4181-4a17-beeb-9918b0ff7a30',
+    CRIME: '5ca48985-9a9d-4bd8-be29-80dc0303db72',
+    SPORTS: '69964a64-2f90-4d33-beeb-f3ed2875eb4c',
+    SUPERHERO: '7064a261-a137-4d3a-8848-2d385de3a99c',
+    MAGICALGIRLS: '81c836c9-914a-4eca-981a-560dad663e73',
+    ADVENTURE: '87cc87cd-a395-47af-b27a-93258283bbc6',
+    GIRLSLOVE: 'a3c67850-4684-404e-9b7f-c69850ee5da6',
+    WUXIA: 'acc803a4-c95a-4c22-86fc-eb6b582d82a2',
+    ISEKAI: 'ace04997-f6bd-436e-b261-779182193d3d',
+    PHILOSOPHICAL: 'b1e97889-25b4-4258-b28b-cd7f4d28ea9b',
+    DRAMA: 'b9af3a63-f058-46de-a9a0-e0c13906197a',
+    MEDICAL: 'c8cbe35b-1b2b-4a3f-9c37-db84c4514856',
+    HORROR: 'cdad7e68-1419-41dd-bdce-27753074a640',
+    FANTASY: 'cdc58593-87dd-415e-bbc0-2ec27bf404cc',
+    SLICEOFLIFE: 'e5301a23-ebd9-49dd-a0cb-2add944c7fe9',
+    MYSTERY: 'ee968100-4191-4968-93d3-f82d72be7e46',
+    TRAGEDY: 'f8f62932-27da-4fe4-8ee1-6779a8c5edba',
+};
+
+export type GenreId = keyof typeof GENRES;
+
+
