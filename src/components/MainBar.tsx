@@ -14,11 +14,11 @@ export default function MainBar() {
       </Pressable>
 
       <Pressable onPress={() => navigation.navigate('ExploreScreen')}>
-        <Ionicons name="search" size={30} color="white" />
+        <Ionicons name="compass" size={30} color="white" />
       </Pressable>
 
       <Pressable onPress={() => navigation.navigate('SettingsScreen')}>
-        <Ionicons name="bookmark" size={30} color="white" />
+        <Ionicons name="settings-sharp" size={30} color="white" />
       </Pressable>
     </View>
   );
