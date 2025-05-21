@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, ActivityIndicator, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -17,7 +17,7 @@ export const getCoverUrl = (item: any) => {
   return fileName ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg` : null;
 };
 
-export default function MangaCarousel({ title, fetchFunction, data}: Readonly<MangaCarouselProps>) {
+function MangaCarousel({ title, fetchFunction, data}: Readonly<MangaCarouselProps>) {
   const [mangas, setMangas] = useState<any[]>([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -57,12 +57,12 @@ export default function MangaCarousel({ title, fetchFunction, data}: Readonly<Ma
   }, []);
 
   return (
-    <View className="mb-6">
+    <View className="mb-6 min-h-[240px]">
       <Text className="text-xl font-bold mb-2">{title}</Text>
       <FlatList
         horizontal
         data={mangas}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
+        keyExtractor={(item, index) => `${title}-${item.id}-${index}`}
         renderItem={({ item }) => (
           <Pressable
             onPress={() => navigation.navigate('MangaDetails', { manga: item })}
@@ -91,4 +91,7 @@ export default function MangaCarousel({ title, fetchFunction, data}: Readonly<Ma
       />
     </View>
   );
+  
 }
+
+export default React.memo(MangaCarousel);

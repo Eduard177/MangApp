@@ -73,7 +73,7 @@ export const getGenderManga = async (limit = 5, offset = 0, genderArr = '') => {
       params: {
         limit,
         offset,
-        'order[followedCount]': 'desc',
+        'order[rating]': 'desc',
         includes: ['cover_art'],
         includedTags: [genderArr],
       },
