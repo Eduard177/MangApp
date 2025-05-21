@@ -6,6 +6,7 @@ import MangaCarousel from '../components/MangaCarousel';
 import { useFocusEffect } from '@react-navigation/native';
 import { getReadingHistory } from '../services/storage';
 import { transformHistoryToMangaData } from '../utils/transformHistoryToMangaData.util';
+import MainBar from '../components/MainBar';
 
 export default function HomeScreen() {
   const [reloadFlag, setReloadFlag] = useState(true);
@@ -22,7 +23,7 @@ export default function HomeScreen() {
   //   }, []),
   // );
   return (
-    <View>
+    <View className="flex-1 bg-white dark:bg-gray-900">
       <Navbar
         onFilter={() => console.log('Filter pressed')}
         onReload={() => setReloadFlag((prev) => !prev)}
@@ -36,7 +37,10 @@ export default function HomeScreen() {
         )} */}
         <MangaCarousel title="Popular" fetchFunction={() => fetchPopularMangas()} />
         <MangaCarousel title="Gender" fetchFunction={() => fetchMangaGender()} />
+        <MangaCarousel title="Popular" fetchFunction={() => fetchPopularMangas()} />
+
       </ScrollView>
+            <MainBar/>
     </View>
   );
 }
