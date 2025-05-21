@@ -1,6 +1,6 @@
 import { getChapterPages, getGenderManga, getPopularManga } from './mangadexApi';
 
-export async function fetchPopularMangas(limit = 10, offset = 0) {
+export async function fetchPopularMangas(limit = 5, offset = 0) {
   try {
     const response = await getPopularManga(limit, offset);
     return response.data;

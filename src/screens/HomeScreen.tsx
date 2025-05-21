@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getReadingHistory } from '../services/storage';
 import { transformHistoryToMangaData } from '../utils/transformHistoryToMangaData.util';
 import MainBar from '../components/MainBar';
+import GenreCarousel from '../components/GenderCarousel';
 
 export default function HomeScreen() {
   const [reloadFlag, setReloadFlag] = useState(true);
@@ -35,8 +36,10 @@ export default function HomeScreen() {
             fetchFunction={() => transformHistoryToMangaData(recentChapters)}
           />
         )} */}
-        <MangaCarousel title="Popular" fetchFunction={() => fetchPopularMangas()} />
-        <MangaCarousel title="Gender" fetchFunction={() => fetchMangaGender()} />
+        <MangaCarousel title="Popular" fetchFunction={(limit, offset) => fetchPopularMangas(limit, offset)} />
+
+        <GenreCarousel onSelectGenre={(id) => console.log('Género seleccionado:', id)} />
+
         <MangaCarousel title="Popular" fetchFunction={() => fetchPopularMangas()} />
 
       </ScrollView>

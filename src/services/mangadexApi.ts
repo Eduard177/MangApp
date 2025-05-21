@@ -50,7 +50,7 @@ export const getChapterImages = async (chapterId: string) => {
   return res.data;
 };
 
-export const getPopularManga = async (limit = 10, offset = 0) => {
+export const getPopularManga = async (limit = 5, offset = 0) => {
   try {
     const res = await axios.get(`${BASE_URL}/manga`, {
       params: {
@@ -81,6 +81,16 @@ export const getGenderManga = async (genderArr = ['shonen']) => {
     return res.data;
   } catch (error) {
     console.error('Error al obtener mangas:', error);
+    throw error;
+  }
+};
+
+export const getAllTags = async () => {
+  try {
+    const res = await axios.get('https://api.mangadex.org/manga/tag');
+    return res.data.data; // Lista de etiquetas
+  } catch (error) {
+    console.error('Error al obtener las etiquetas:', error);
     throw error;
   }
 };

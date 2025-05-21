@@ -4,63 +4,77 @@ import { useNavigation } from '@react-navigation/native';
 
 interface MangaCarouselProps {
   title: string;
-  fetchFunction: () => Promise<any[]> | any[];
+  fetchFunction: (offset: number, limit: number) => Promise<any[]>;
 }
+
+const LIMIT = 5;
+const MAX_TOTAL = 15;
+
 export const getCoverUrl = (item: any) => {
-  const manga = item.manga ?? item; // soporte para historial y normal
-  const fileName = manga?.relationships?.find((rel: any) => rel.type === 'cover_art')?.attributes
-    ?.fileName;
+  const manga = item.manga ?? item;
+  const fileName = manga?.relationships?.find((rel: any) => rel.type === 'cover_art')?.attributes?.fileName;
   return fileName ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg` : null;
 };
 
 export default function MangaCarousel({ title, fetchFunction }: Readonly<MangaCarouselProps>) {
   const [mangas, setMangas] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [offset, setOffset] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const navigation = useNavigation();
 
-  const loadMangas = async () => {
+  const loadMore = async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
     try {
-      setLoading(true);
-      const data = await fetchFunction();
-      setMangas(data);
-    } catch (error) {
-      console.error(`Error fetching ${title} mangas:`, error);
+      const newData = await fetchFunction(LIMIT, offset);
+      const filtered = newData.filter((item: any) => !mangas.find((m) => m.id === item.id));
+
+      const updated = [...mangas, ...filtered];
+      setMangas(updated);
+      setOffset((prev) => prev + LIMIT);
+
+      if (updated.length >= MAX_TOTAL || filtered.length < LIMIT) {
+        setHasMore(false);
+      }
+    } catch (e) {
+      console.error('Error loading more mangas:', e);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadMangas();
+    loadMore();
   }, []);
 
   return (
     <View className="mb-6">
       <Text className="text-xl font-bold mb-2">{title}</Text>
-      {loading ? (
-        <ActivityIndicator size="small" />
-      ) : (
-        <FlatList
-          horizontal
-          data={mangas}
-          keyExtractor={(item, index) => item?.id ?? `item-${index}`}
-          showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => navigation.navigate('MangaDetails', { manga: item })}
-              className="mr-4"
-            >
-              <Image
-                source={{ uri: getCoverUrl(item) }}
-                style={{ width: 120, height: 180, borderRadius: 8 }}
-              />
-              <Text className="mt-1 w-28 text-sm font-medium text-center">
-                {item.manga?.attributes?.title?.en ?? item.attributes?.title?.en ?? 'Sin título'}
-              </Text>
-            </Pressable>
-          )}
-        />
-      )}
+      <FlatList
+        horizontal
+        data={mangas}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
+        renderItem={({ item }) => (
+          <Pressable
+            onPress={() => navigation.navigate('MangaDetails', { manga: item })}
+            className="mr-4"
+          >
+            <Image
+              source={{ uri: getCoverUrl(item) }}
+              style={{ width: 120, height: 180, borderRadius: 8 }}
+            />
+            <Text className="mt-1 w-28 text-sm font-medium text-center">
+              {item.manga?.attributes?.title?.en ?? item.attributes?.title?.en ?? 'Sin título'}
+            </Text>
+          </Pressable>
+        )}
+        showsHorizontalScrollIndicator={false}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={loading ? <ActivityIndicator className="ml-4" /> : null}
+      />
     </View>
   );
 }
