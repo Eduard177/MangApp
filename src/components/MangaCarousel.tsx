@@ -75,7 +75,8 @@ function MangaCarousel({ title, fetchFunction, data}: Readonly<MangaCarouselProp
             <Text 
              numberOfLines={1}
              className="mt-1 w-28 text-sm font-medium text-left">
-              {item.manga?.attributes?.title?.en ?? item.attributes?.title?.en ?? 'Sin título'}
+              {item.manga?.attributes?.title?.en ?? item.attributes?.title?.en ?? item.manga?.attributes?.altTitles?.find(t => t.en)?.en ?? item.attributes?.altTitles?.find(t => t.en)?.en ?? 'Sin título'}
+              {/* manga.attributes.title.en ?? manga.attributes.altTitles?.find(t => t.en)?.en */}
             </Text>
             <Text
              numberOfLines={2}
