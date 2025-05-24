@@ -17,7 +17,7 @@ export default function MainBar() {
         <Ionicons name="compass" size={30} color="white" />
       </Pressable>
 
-      <Pressable onPress={() => navigation.navigate('SettingsScreen')}>
+      <Pressable onPress={() => navigation.navigate('SettingScreen')}>
         <Ionicons name="settings-sharp" size={30} color="white" />
       </Pressable>
     </View>

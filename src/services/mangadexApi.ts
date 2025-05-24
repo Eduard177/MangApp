@@ -1,7 +1,7 @@
 // src/services/mangadexApi.ts
 import axios from 'axios';
 
-const BASE_URL = 'https://api.mangadex.org';
+const BASE_URL = 'https://api.mangadex.dev';
 
 const api = axios.create({
   baseURL: BASE_URL,

@@ -42,32 +42,15 @@ export default function ChapterReader() {
         const atributes = url?.data?.attributes;
 
         if (!chapter || chapter.data.length === 0) {
-          // Capítulo externo
           const externalUrl = atributes?.externalUrl;
+          console.log(url)
           setExternalUrl(externalUrl);
 
-          // Agregar a historial de lectura con marca externa
-          await addToReadingHistory({
-            title: atributes?.title ?? 'without title',
-            chapter: atributes?.chapter,
-            chapterId,
-            isExternal: !!externalUrl,
-            manga,
-          });
         } else {
           const images = chapter.data.map(
             (fileName: string) => `${baseUrl}/data/${chapter.hash}/${fileName}`,
           );
           setChapterImages(images);
-
-          // Agregar a historial de lectura
-          await addToReadingHistory({
-            chapterId,
-            chapter: atributes?.chapter,
-            title: atributes?.title,
-            manga,
-            isExternal: false,
-          });
         }
       } catch (error) {
         console.error('Error fetching chapter images:', error);

@@ -1,10 +1,10 @@
 import { FlatList, View } from 'react-native';
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
-import MainBar from '../components/MainBar';
 import MangaCarousel from '../components/MangaCarousel';
 import { fetchPopularMangas, fetchMangaGender } from '../services/mangaService';
 import { GENRES } from '../utils/genres/genreConstants';
+import MainBar from '../components/MainBar';
 
 type GenreItem = {
   title: string;
@@ -47,7 +47,6 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
       />
-
       <MainBar />
     </View>
   );
