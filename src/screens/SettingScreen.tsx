@@ -10,10 +10,10 @@ export default function SettingsScreen() {
   const [onlyUpdates, setOnlyUpdates] = useState(false);
   const [incognitoMode, setIncognitoMode] = useState(false);
 
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   
   return (
-    <View>
+    <View className="flex-1">
     <ScrollView className="flex-1 bg-gray-100 px-4 pt-11 top-4">
       <View className="items-center mb-6">
         <View>

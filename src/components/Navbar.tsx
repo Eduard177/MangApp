@@ -15,14 +15,12 @@ export default function Navbar({ onFilter, onReload }: Readonly<NavbarProps>) {
 
   return (
     <View className="flex flex-row justify-between items-center p-4 pt-12 bg-white dark:bg-black border-b border-gray-300 dark:border-gray-700">
-      {/* Logo */}
       <View>
         <Pressable onPress={() => navigation.navigate('Home')}>
           <Logo />
         </Pressable>
       </View>
 
-      {/* Botones */}
       <View className="flex-row space-x-4">
         <Pressable onPress={() => navigation.navigate('SearchScreen')}>
           <Ionicons name="search" size={28} color="black" />
