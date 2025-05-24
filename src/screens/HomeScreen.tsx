@@ -20,7 +20,8 @@ const genreList: GenreItem[] = [
   },
   ...Object.entries(GENRES).map(([key, id]) => ({
     title: formatGenreName(key),
-    fetchFunction: (limit: number, offset: number, data?: any) => fetchMangaGender(limit, offset, data),
+    fetchFunction: (limit: number, offset: number, data?: any) =>
+      fetchMangaGender(limit, offset, data),
     data: id,
   })),
 ];
@@ -38,11 +39,7 @@ export default function HomeScreen() {
         data={genreList}
         keyExtractor={(item) => item.title}
         renderItem={({ item }) => (
-          <MangaCarousel
-            title={item.title}
-            fetchFunction={item.fetchFunction}
-            data={item?.data}
-          />
+          <MangaCarousel title={item.title} fetchFunction={item.fetchFunction} data={item?.data} />
         )}
         initialNumToRender={2}
         maxToRenderPerBatch={2}
@@ -57,7 +54,5 @@ export default function HomeScreen() {
 }
 
 function formatGenreName(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/\b\w/g, (l) => l.toUpperCase());
+  return name.toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
 }

@@ -49,14 +49,11 @@ export default function GenreCarousel({ onSelectGenre }: Readonly<GenreCarouselP
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
-          <Pressable
-            onPress={() => onSelectGenre(item.id)}
-            className="mr-4"
-          >
+          <Pressable onPress={() => onSelectGenre(item.id)} className="mr-4">
             <ImageBackground
-                source={{
-                    uri: `https://uploads.mangadex.org/tags/${item.id}.jpg`,
-                }}
+              source={{
+                uri: `https://uploads.mangadex.org/tags/${item.id}.jpg`,
+              }}
               style={{ width: 120, height: 80, borderRadius: 12, overflow: 'hidden' }}
               imageStyle={{ borderRadius: 12 }}
             >

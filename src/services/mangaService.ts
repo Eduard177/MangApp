@@ -10,7 +10,7 @@ export async function fetchPopularMangas(limit = 5, offset = 0) {
   }
 }
 
-export async function fetchMangaGender(limit = 5, offset = 0, genderArr: string,) {
+export async function fetchMangaGender(limit = 5, offset = 0, genderArr: string) {
   try {
     const response = await getGenderManga(limit, offset, genderArr);
     return response.data;

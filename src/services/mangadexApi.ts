@@ -1,7 +1,7 @@
 // src/services/mangadexApi.ts
 import axios from 'axios';
 
-const BASE_URL = 'https://api.mangadex.dev';
+const BASE_URL = 'https://api.mangadex.org';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -80,7 +80,7 @@ export const getGenderManga = async (limit = 5, offset = 0, genderArr = '') => {
     });
     return res.data;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     console.error('Error al obtener mangas:', error);
     throw error;
   }
@@ -98,10 +98,10 @@ export const getAllTags = async () => {
 
 export const getAuthorManga = async (authorId: string) => {
   try {
-    const res = await api.get(`/author/${authorId}`, );
+    const res = await api.get(`/author/${authorId}`);
     return res.data.data;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     console.error('Error al obtener mangas del autor:', error);
     throw error;
   }
@@ -129,15 +129,14 @@ export const getChaptersByMangaId = async (
 };
 
 export const getChapterPages = async (chapterId: string) => {
-  try{
-  const response = await api.get(`/at-home/server/${chapterId}?forcePort443=true`)
+  try {
+    const response = await api.get(`/at-home/server/${chapterId}?forcePort443=true`);
 
-  return response.data;
-  }catch (error) {
+    return response.data;
+  } catch (error) {
     console.error('Error al obtener las páginas del capítulo:', error);
     throw error;
   }
-
 };
 
 export const getChapterPagesExternal = async (chapterId: string) => {

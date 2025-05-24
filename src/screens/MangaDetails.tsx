@@ -1,8 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Dimensions, Pressable, FlatList, ActivityIndicator } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  Dimensions,
+  Pressable,
+  FlatList,
+  ActivityIndicator,
+  ScrollView,
+} from 'react-native';
 import { RouteProp, useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import { getAuthorManga, getChaptersByMangaId } from '../services/mangadexApi';
+import ChaptersTab from '../components/ChaptersTab';
+import { Ionicons } from '@expo/vector-icons';
 
 const initialLayout = { width: Dimensions.get('window').width };
 const screenHeight = Dimensions.get('window').height;
@@ -10,7 +21,6 @@ const screenHeight = Dimensions.get('window').height;
 type RootStackParamList = {
   MangaDetails: { manga: any };
   ChapterReader: { chapterId: string; mangaId: string };
-  // Add other routes if needed
 };
 
 export default function MangaDetailScreen() {
@@ -55,7 +65,7 @@ export default function MangaDetailScreen() {
     } catch (error) {
       console.error('Error fetching author name:', error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchChapters();
@@ -63,101 +73,92 @@ export default function MangaDetailScreen() {
   }, []);
 
   const GeneralRoute = () => (
-    <View className="p-4">
+    <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
       <Text className="text-base text-gray-700 dark:text-gray-300 mb-4">
         {manga.attributes.description?.en ?? 'No description available.'}
       </Text>
-      <Text className="font-semibold">Genres:</Text>
+      <Text className="font-semibold mb-1">Genres:</Text>
       <Text className="text-sm text-gray-600">
-        {manga.attributes.tags?.map((tag: { attributes: { name: { en: any; }; }; }) => tag.attributes.name.en).join(', ') ?? 'Unknown'}
+        {manga.attributes.tags
+          ?.map((tag: { attributes: { name: { en: any } } }) => tag.attributes.name.en)
+          .join(', ') ?? 'Unknown'}
       </Text>
-    </View>
+    </ScrollView>
   );
 
-const ChaptersTab = () => {
-  if (loading && chapters.length === 0) {
-    return (
-      <View className="flex-1 justify-center items-center p-4">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  if (!loading && chapters.length === 0) {
-    return (
-      <View className="flex-1 justify-center items-center p-4">
-        <Text className="text-gray-500 dark:text-gray-400 text-base italic">
-          No hay capítulos disponibles.
-        </Text>
-      </View>
-    );
-  }
-
-  return (
-    <FlatList
-      data={chapters}
-      keyExtractor={(item) => item.id}
-      onEndReached={fetchChapters}
-      onEndReachedThreshold={0.5}
-      renderItem={({ item }) => (
-        <Pressable
-          onPress={() => navigation.navigate('ChapterReader', {
-            chapterId: item.id,
-            mangaId: manga.id,
-          })}
-          className="px-4 py-3 border-b border-gray-200 dark:border-gray-700"
-        >
-          <Text className="font-medium text-black dark:text-white">
-            Capítulo {item.attributes.chapter ?? 'N/A'}: {item.attributes.title ?? 'No title'}
-          </Text>
-        </Pressable>
-      )}
-      ListFooterComponent={loading ? (
-        <ActivityIndicator className="my-4" />
-      ) : null}
-    />
-  );
-};
-
-
-  const renderScene = SceneMap({
-    general: GeneralRoute,
-    chapters: ChaptersTab,
-  });
+  const renderScene = ({ route }: any) => {
+    switch (route.key) {
+      case 'general':
+        return <GeneralRoute />;
+      case 'chapters':
+        return (
+          <ChaptersTab
+            chapters={chapters}
+            loading={loading}
+            fetchChapters={fetchChapters}
+            mangaId={manga.id}
+            navigation={navigation}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <View className="flex-1 bg-white">
       <View className="relative">
         <Image
-          source={{ uri: `https://uploads.mangadex.org/covers/${manga.id}/${manga.relationships?.find((r) => r.type === 'cover_art')?.attributes.fileName}.256.jpg` }}
+          source={{
+            uri: `https://uploads.mangadex.org/covers/${manga.id}/${manga.relationships?.find((r) => r.type === 'cover_art')?.attributes.fileName}.256.jpg`,
+          }}
           style={{ width: '100%', height: screenHeight * 0.45 }}
           resizeMode="cover"
         />
-        <View style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)', // Ajusta la opacidad según lo oscuro que lo quieras
-        }}/>
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}
+        >
+        <View className="flex-row justify-between">
+          <Pressable onPress={() => navigation.goBack()} className="flex-1 justify-between items-start p-10 px-5">
+            <Ionicons name="arrow-back" size={30} color="white" />
+          </Pressable>
 
-      <View className="absolute bottom-6 left-4">
-        <Text className="text-pink-500 font-bold mb-1">En curso</Text>
-        <Text className="text-white text-2xl font-bold">{manga.attributes.title.en ?? manga.attributes.altTitles?.find(t => t.en)?.en}</Text>
-        {manga.relationships?.find((rel) => rel.type === 'author') && (
-          <Text className="text-white opacity-80 text-sm italic">
-            By: {authorName ?? 'Unknown'}
+          <Pressable onPress={() => console.log('Download pressed')} className="flex-1 justify-between items-end p-10 px-5">
+            <Ionicons name="cloud-download" size={30} color="white" />
+          </Pressable>
+          </View>
+        </View>
+
+
+
+
+        <View className="absolute bottom-6 left-4">
+          <Text className="text-pink-500 font-bold mb-1">En curso</Text>
+          <Text className="text-white text-2xl font-bold">
+            {manga.attributes.title.en ?? manga.attributes.altTitles?.find((t) => t.en)?.en}
           </Text>
-        )}
+          {manga.relationships?.find((rel) => rel.type === 'author') && (
+            <Text className="text-white opacity-80 text-sm italic">
+              By: {authorName ?? 'Unknown'}
+            </Text>
+          )}
+        </View>
       </View>
-    </View>
 
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}
         onIndexChange={setIndex}
         initialLayout={initialLayout}
+        lazy
+        swipeEnabled={true}
         renderTabBar={(props) => (
           <TabBar
             {...props}

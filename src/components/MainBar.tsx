@@ -8,7 +8,7 @@ export default function MainBar() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
-    <View  style={styles.container}>
+    <View style={styles.container}>
       <Pressable onPress={() => navigation.navigate('Home')}>
         <Ionicons name="home" size={30} color="white" />
       </Pressable>
@@ -26,19 +26,19 @@ export default function MainBar() {
 
 const styles = StyleSheet.create({
   container: {
-        position: 'absolute',
-        bottom: 60,
-        alignSelf: 'center',
-        backgroundColor: '#FF3E91', // rosa
-        width: 240,
-        borderRadius: 20,
-        padding: 10,
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        elevation: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
+    position: 'absolute',
+    bottom: 60,
+    alignSelf: 'center',
+    backgroundColor: '#FF3E91', // rosa
+    width: 240,
+    borderRadius: 20,
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
 });

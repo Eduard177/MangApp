@@ -18,7 +18,7 @@ export default function Navbar({ onFilter, onReload }: Readonly<NavbarProps>) {
       {/* Logo */}
       <View>
         <Pressable onPress={() => navigation.navigate('Home')}>
-               <Logo />
+          <Logo />
         </Pressable>
       </View>
 

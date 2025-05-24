@@ -3,24 +3,12 @@
   "compilerOptions": {
     "jsx": "react-native",
     "moduleResolution": "bundler",
-    "customConditions": [
-      "react-native"
-    ],
+    "customConditions": ["react-native"],
     "target": "esnext",
     "strict": false,
     "noEmit": true,
-    "types": [
-      "nativewind/types",
-      "react-native-svg"
-    ]
+    "types": ["nativewind/types", "react-native-svg"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "nativewind-env.d.ts",
-    "src", "src/types"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", "src", "src/types"],
+  "exclude": ["node_modules"]
 }
