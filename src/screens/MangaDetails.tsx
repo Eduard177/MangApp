@@ -137,8 +137,6 @@ export default function MangaDetailScreen() {
         </View>
 
 
-
-
         <View className="absolute bottom-6 left-4">
           <Text className="text-pink-500 font-bold mb-1">En curso</Text>
           <Text className="text-white text-2xl font-bold">
