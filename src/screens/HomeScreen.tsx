@@ -1,32 +1,20 @@
-import { FlatList, View } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getContinueReading } from '../services/storage';
 import Navbar from '../components/Navbar';
-import MangaCarousel from '../components/MangaCarousel';
-import { fetchPopularMangas, fetchMangaGender } from '../services/mangaService';
-import { GENRES } from '../utils/genres/genreConstants';
-import MainBar from '../components/MainBar';
+import { ScrollView, View } from 'react-native';
+import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
+import { useContinueReadingStore } from '../store/useContinueReadingStore';
 
-type GenreItem = {
-  title: string;
-  fetchFunction: (limit: number, offset: number, data?: any) => Promise<any>;
-  data?: string;
-};
-
-const genreList: GenreItem[] = [
-  {
-    title: 'Popular',
-    fetchFunction: (limit: number, offset: number) => fetchPopularMangas(limit, offset),
-    data: undefined,
-  },
-  ...Object.entries(GENRES).map(([key, id]) => ({
-    title: formatGenreName(key),
-    fetchFunction: (limit: number, offset: number, data?: any) =>
-      fetchMangaGender(limit, offset, data),
-    data: id,
-  })),
-];
 export default function HomeScreen() {
+  const [continueReading, setContinueReading] = useState([]);
   const [reloadFlag, setReloadFlag] = useState(false);
+  useEffect(() => {
+    const loadContinueReading = async () => {
+      const data = await getContinueReading();
+      setContinueReading(data);
+    };
+    loadContinueReading();
+  }, []);
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
@@ -35,23 +23,9 @@ export default function HomeScreen() {
         onReload={() => setReloadFlag((prev) => !prev)}
       />
 
-      <FlatList
-        data={genreList}
-        keyExtractor={(item) => item.title}
-        renderItem={({ item }) => (
-          <MangaCarousel title={item.title} fetchFunction={item.fetchFunction} data={item?.data} />
-        )}
-        initialNumToRender={2}
-        maxToRenderPerBatch={2}
-        windowSize={5}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
-      />
-      <MainBar />
+        <ScrollView className="p-4 bg-white dark:bg-black">
+            <ContinueReadingCarousel />
+        </ScrollView>
     </View>
   );
-}
-
-function formatGenreName(name: string) {
-  return name.toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
 }

@@ -5,7 +5,6 @@ import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation';
 import Logo from '../assets/Logo.svg';
-import MainBar from '../components/MainBar';
 export default function SettingsScreen() {
   const [onlyUpdates, setOnlyUpdates] = useState(false);
   const [incognitoMode, setIncognitoMode] = useState(false);
@@ -13,7 +12,6 @@ export default function SettingsScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   
   return (
-    <View className="flex-1">
     <ScrollView className="flex-1 bg-gray-100 px-4 pt-11 top-4">
       <View className="items-center mb-6">
         <View>
@@ -63,7 +61,5 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
-        <MainBar />
-    </View>
   );
 }

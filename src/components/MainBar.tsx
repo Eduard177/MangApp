@@ -9,7 +9,10 @@ export default function MainBar() {
 
   return (
     <View style={styles.container}>
-      <Pressable onPress={() => navigation.navigate('Home')}>
+      <Pressable onPress={() => navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+                })}>
         <Ionicons name="home" size={30} color="white" />
       </Pressable>
 

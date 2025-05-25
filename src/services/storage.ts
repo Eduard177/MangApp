@@ -1,46 +1,63 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useContinueReadingStore } from '../store/useContinueReadingStore';
 
-const KEY = 'reading_history';
+const CONTINUE_READING_KEY = 'continue_reading';
 
-export const addToReadingHistory = async (item: {
-  chapterId: string;
-  chapter: string;
-  title: string;
-  manga: any;
-  isExternal: boolean;
-  coverUrl?: string;
-}) => {
+export const saveMangaToContinueReading = async (
+  manga: any,
+  lastReadChapterId: string,
+) => {
+  if (!manga?.id || !lastReadChapterId) {
+    console.warn('Datos inválidos para guardar en continue_reading');
+    return;
+  }
+
+  const entry = {
+    mangaId: manga.id,
+    title:
+      manga.attributes?.title?.en ??
+      manga.attributes?.altTitles?.find((t: any) => t.en)?.en ??
+      'Sin título',
+    cover:
+      manga.relationships?.find((r: any) => r.type === 'cover_art')?.attributes
+        ?.fileName ?? null,
+    lastReadChapterId,
+    timestamp: Date.now(),
+  };
+
   try {
-    // Validación rápida del item
-    if (!item.chapterId || !item.manga?.id) {
-      console.warn('Intento de guardar item inválido en el historial', item);
-      return;
-    }
+    const existing = await AsyncStorage.getItem(CONTINUE_READING_KEY);
+    let history = existing ? JSON.parse(existing) : [];
 
-    const json = await AsyncStorage.getItem(KEY);
-    let history = json ? JSON.parse(json) : [];
+    history = history.filter((e: any) => e.id !== manga.id);
 
-    // Eliminar duplicado por chapterId
-    history = history.filter((entry: any) => entry.chapterId !== item.chapterId);
+    history.unshift(entry);
 
-    // Agregar al principio
-    history.unshift(item);
-
-    // Limitar a los últimos 10
     history = history.slice(0, 10);
 
-    await AsyncStorage.setItem(KEY, JSON.stringify(history));
+    await AsyncStorage.setItem(CONTINUE_READING_KEY, JSON.stringify(history));
   } catch (e) {
-    console.error('Error saving reading history:', e);
+    console.error('Error saving to continue reading:', e);
   }
 };
 
-export const getReadingHistory = async () => {
+
+export const getContinueReading = async () => {
   try {
-    const json = await AsyncStorage.getItem(KEY);
+    const json = await AsyncStorage.getItem(CONTINUE_READING_KEY);
     return json ? JSON.parse(json) : [];
   } catch (e) {
-    console.error('Error getting reading history', e);
+    console.error('Error reading continue reading history', e);
     return [];
+  }
+};
+
+export const clearContinueReading = async () => {
+  try {
+    await AsyncStorage.removeItem(CONTINUE_READING_KEY);
+    useContinueReadingStore.getState().toggleReload();
+    console.log('Historial de lectura borrado.');
+  } catch (e) {
+    console.error('Error al borrar el historial de lectura', e);
   }
 };

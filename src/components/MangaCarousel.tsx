@@ -2,12 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, ActivityIndicator, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-interface MangaCarouselProps {
-  title: string;
-  fetchFunction: (offset: number, limit: number, data?: any) => Promise<any[]>;
-  data?: any;
-}
-
 const LIMIT = 5;
 const MAX_TOTAL = 20;
 
@@ -17,16 +11,22 @@ export const getCoverUrl = (item: any) => {
     ?.fileName;
   return fileName ? `https://uploads.mangadex.org/covers/${manga.id}/${fileName}.256.jpg` : null;
 };
+interface MangaCarouselProps {
+  title: string;
+  fetchFunction?: (offset?: number, limit?: number, data?: any) => Promise<any[]>;
+  initialData?: any[];
+  data?: any;
+}
 
-function MangaCarousel({ title, fetchFunction, data }: Readonly<MangaCarouselProps>) {
-  const [mangas, setMangas] = useState<any[]>([]);
-  const [offset, setOffset] = useState(0);
+function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonly<MangaCarouselProps>) {
+  const [mangas, setMangas] = useState<any[]>(initialData);
+  const [offset, setOffset] = useState(initialData.length);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const navigation = useNavigation();
 
   const loadMore = async () => {
-    if (loading || !hasMore) return;
+    if (!fetchFunction || loading || !hasMore) return;
 
     setLoading(true);
     try {
@@ -47,6 +47,12 @@ function MangaCarousel({ title, fetchFunction, data }: Readonly<MangaCarouselPro
     }
   };
 
+  useEffect(() => {
+    if (!initialData.length && fetchFunction) {
+      loadMore();
+    }
+  }, []);
+
   const getGendersNames = (tags: any[] = []) => {
     const genreTags = tags.filter((tag) => tag.attributes.group === 'genre');
     if (genreTags.length === 0) return 'Sin Genero';
@@ -55,10 +61,6 @@ function MangaCarousel({ title, fetchFunction, data }: Readonly<MangaCarouselPro
       .filter(Boolean)
       .join(' • ');
   };
-
-  useEffect(() => {
-    loadMore();
-  }, []);
 
   return (
     <View className="mb-6 min-h-[240px]">
@@ -82,7 +84,6 @@ function MangaCarousel({ title, fetchFunction, data }: Readonly<MangaCarouselPro
                 item.manga?.attributes?.altTitles?.find((t) => t.en)?.en ??
                 item.attributes?.altTitles?.find((t) => t.en)?.en ??
                 'Sin título'}
-              {/* manga.attributes.title.en ?? manga.attributes.altTitles?.find(t => t.en)?.en */}
             </Text>
             <Text
               numberOfLines={2}

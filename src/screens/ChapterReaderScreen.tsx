@@ -12,7 +12,8 @@ import {
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { featchGetChapterPages } from '../services/mangaService';
 import { fetchMangaById, getChapterPagesExternal } from '../services/mangadexApi';
-import { addToReadingHistory } from '../services/storage';
+import {  saveMangaToContinueReading } from '../services/storage';
+
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -26,7 +27,7 @@ type RootStackParamList = {
 export default function ChapterReader() {
   const route = useRoute<RouteProp<RootStackParamList, 'ChapterReader'>>();
   const { chapterId, mangaId } = route.params;
-
+  console.log(chapterId, mangaId);
   const [isLoading, setIsLoading] = useState(true);
   const [chapterImages, setChapterImages] = useState<string[]>([]);
   const [externalUrl, setExternalUrl] = useState<string | null>(null);
@@ -43,14 +44,17 @@ export default function ChapterReader() {
 
         if (!chapter || chapter.data.length === 0) {
           const externalUrl = atributes?.externalUrl;
-          console.log(url)
           setExternalUrl(externalUrl);
+          console.log(chapter)
 
+        await saveMangaToContinueReading(manga, chapterId);
         } else {
           const images = chapter.data.map(
             (fileName: string) => `${baseUrl}/data/${chapter.hash}/${fileName}`,
           );
           setChapterImages(images);
+
+         await saveMangaToContinueReading(manga, chapterId);
         }
       } catch (error) {
         console.error('Error fetching chapter images:', error);

@@ -16,7 +16,10 @@ export default function Navbar({ onFilter, onReload }: Readonly<NavbarProps>) {
   return (
     <View className="flex flex-row justify-between items-center p-4 pt-12 bg-white dark:bg-black border-b border-gray-300 dark:border-gray-700">
       <View>
-        <Pressable onPress={() => navigation.navigate('Home')}>
+        <Pressable onPress={() => navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+                })}>
           <Logo />
         </Pressable>
       </View>

@@ -1,7 +1,7 @@
 // src/services/mangadexApi.ts
 import axios from 'axios';
 
-const BASE_URL = 'https://api.mangadex.dev';
+const BASE_URL = 'https://api.mangadex.org';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -56,7 +56,7 @@ export const getPopularManga = async (limit = 5, offset = 0) => {
       params: {
         limit,
         offset,
-        'order[followedCount]': 'desc',
+        'order[rating]': 'desc',
         includes: ['cover_art'],
       },
     });
@@ -80,7 +80,6 @@ export const getGenderManga = async (limit = 5, offset = 0, genderArr = '') => {
     });
     return res.data;
   } catch (error) {
-    console.log(error);
     console.error('Error al obtener mangas:', error);
     throw error;
   }
@@ -101,7 +100,6 @@ export const getAuthorManga = async (authorId: string) => {
     const res = await api.get(`/author/${authorId}`);
     return res.data.data;
   } catch (error) {
-    console.log(error);
     console.error('Error al obtener mangas del autor:', error);
     throw error;
   }
