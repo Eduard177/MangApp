@@ -1,24 +1,23 @@
-// src/services/mangadexApi.ts
 import axios from 'axios';
+import { getApiLanguage } from '../utils/getApiLang';
 
 const BASE_URL = 'https://api.mangadex.org';
-
 const api = axios.create({
   baseURL: BASE_URL,
 });
 
 export const searchManga = async (
   title: string,
-  translatedLanguage: Array<string> = ['en'],
   limit: number = 10,
   offset: number = 0,
 ) => {
+  const lang = await getApiLanguage();
   const response = await api.get('/manga', {
     params: {
       title,
       limit,
       offset,
-      availableTranslatedLanguage: translatedLanguage,
+      availableTranslatedLanguage: [lang],
       order: {
         followedCount: 'desc',
       },
@@ -30,12 +29,12 @@ export const searchManga = async (
 
 export const getMangaChapters = async (
   mangaId: string,
-  translatedLanguage: Array<string> = ['en'],
   limit: number = 10,
 ) => {
+  const lang = await getApiLanguage();
   const response = await api.get(`/manga/${mangaId}/feed`, {
     params: {
-      translatedLanguage: translatedLanguage,
+      translatedLanguage: [lang],
       limit,
       order: {
         chapter: 'asc',
@@ -52,10 +51,12 @@ export const getChapterImages = async (chapterId: string) => {
 
 export const getPopularManga = async (limit = 5, offset = 0) => {
   try {
+    const lang = await getApiLanguage();
     const res = await api.get(`/manga`, {
       params: {
         limit,
         offset,
+        availableTranslatedLanguage: [lang],
         'order[rating]': 'desc',
         includes: ['cover_art'],
       },
@@ -69,10 +70,12 @@ export const getPopularManga = async (limit = 5, offset = 0) => {
 
 export const getGenderManga = async (limit = 5, offset = 0, genderArr = '') => {
   try {
+    const lang = await getApiLanguage();
     const res = await api.get(`/manga`, {
       params: {
         limit,
         offset,
+        availableTranslatedLanguage: [lang],
         'order[rating]': 'desc',
         includes: ['cover_art'],
         includedTags: [genderArr],
@@ -109,12 +112,12 @@ export const getChaptersByMangaId = async (
   mangaId: string,
   limit = 10,
   offset = 0,
-  translatedLanguage: Array<string> = ['en'],
 ) => {
+  const lang = await getApiLanguage();
   const response = await api.get(`/chapter`, {
     params: {
       manga: mangaId,
-      translatedLanguage: translatedLanguage,
+      translatedLanguage: [lang],
       order: {
         chapter: 'asc',
       },

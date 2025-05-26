@@ -24,7 +24,7 @@ export default function SearchScreen({ navigation }: any) {
     if (!newQuery.trim()) return;
     setLoading(true);
     try {
-      const data = await searchManga(newQuery, ['en'], LIMIT, 0);
+      const data = await searchManga(newQuery, LIMIT, 0);
       setResults(data.data ?? []);
       setOffset(LIMIT);
       setHasMore(data.length === LIMIT);
@@ -39,7 +39,7 @@ export default function SearchScreen({ navigation }: any) {
     if (loading || !hasMore) return;
     setLoading(true);
     try {
-      const data = await searchManga(query, ['en'], LIMIT, offset);
+      const data = await searchManga(query, LIMIT, offset);
       setResults((prev) => [...prev, ...data]);
       setOffset((prev) => prev + LIMIT);
       setHasMore(data.length === LIMIT);

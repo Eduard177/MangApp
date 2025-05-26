@@ -1,15 +1,18 @@
 // src/screens/SettingsScreen.tsx
 import { View, Text, TouchableOpacity, ScrollView, Pressable } from 'react-native';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation';
 import Logo from '../assets/Logo.svg';
 import MainBar from '../components/MainBar';
 import MSwitch from '../components/MSwitch';
+import LanguageModal from '../components/LanguageModal';
+import { Modalize } from 'react-native-modalize';
 export default function SettingsScreen() {
   const [onlyDownloaded, setOnlyDownloaded] = useState(false);
   const [incognitoMode, setIncognitoMode] = useState(false);
+  const languageModalRef = useRef<Modalize>(null);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute();
@@ -50,10 +53,17 @@ export default function SettingsScreen() {
               onValueChange={setIncognitoMode}/>
         </View>
       </View>
-
       <View className="mt-6 space-y-6">
+        <TouchableOpacity
+          className="flex-row items-center space-x-3"
+          onPress={() => languageModalRef.current?.open()}
+        >
+            <Feather name="globe" size={20} color="#ec4899" />
+            <Text className="text-base font-medium">Cambiar idioma</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity className="flex-row items-center space-x-3">
-          <Feather name="settings" size={20} color="#ec4899" />
+          <Feather name="settings" size={20} color="#ec4899"/>
           <Text className="text-base font-medium">Config</Text>
         </TouchableOpacity>
 
@@ -66,10 +76,13 @@ export default function SettingsScreen() {
           <Feather name="help-circle" size={20} color="#ec4899" />
           <Text className="text-base font-medium">Help</Text>
         </TouchableOpacity>
+
       </View>
     </ScrollView>
 
     <MainBar currentRouteName={route.name}/>
+    <LanguageModal ref={languageModalRef} />
+
   </View>
   );
 }

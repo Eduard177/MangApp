@@ -6,9 +6,6 @@ import ChapterReaderScreen from '../screens/ChapterReaderScreen';
 import SettingsScreen from '../screens/SettingScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import HomeScreen from '../screens/HomeScreen';
-import { useNavigationState, useRoute } from '@react-navigation/native';
-import MainBar from '../components/MainBar';
-import { View } from 'react-native';
 
 export type RootStackParamList = {
   Home: undefined;
