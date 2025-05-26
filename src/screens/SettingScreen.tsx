@@ -32,7 +32,12 @@ export default function SettingsScreen() {
             <Ionicons name="cloud-offline" size={20} color="#ec4899" />
             <Text className="text-base font-medium">Only updates</Text>
           </View>
-          <Switch value={onlyUpdates} onValueChange={setOnlyUpdates} />
+          <Switch               
+              value={onlyUpdates}
+              onValueChange={setOnlyUpdates}
+              trackColor={{false: '#B4B4B4', true: '#F8BBD5' }}
+              thumbColor={onlyUpdates ? '#FF3E91' : '#B4B4B4'}
+              ios_backgroundColor="#FFFFFF" />
         </View>
 
         <View className="flex-row items-center justify-between">
@@ -40,7 +45,13 @@ export default function SettingsScreen() {
             <Ionicons name="glasses-outline" size={20} color="#ec4899" />
             <Text className="text-base font-medium">Mod Incognito</Text>
           </View>
-          <Switch value={incognitoMode} onValueChange={setIncognitoMode} />
+          <Switch
+              value={incognitoMode}
+              onValueChange={setIncognitoMode}
+              trackColor={{false: '#B4B4B4', true: '#F8BBD5' }}
+              thumbColor={incognitoMode ? '#FF3E91' : '#B4B4B4'}
+              ios_backgroundColor="#FFFFFF" 
+            />
         </View>
       </View>
 

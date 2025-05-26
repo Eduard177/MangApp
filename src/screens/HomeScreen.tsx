@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getContinueReading } from '../services/storage';
+import { clearContinueReading, getContinueReading } from '../services/storage';
 import Navbar from '../components/Navbar';
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View, Text } from 'react-native';
 import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
 import { useFocusEffect } from '@react-navigation/native';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
@@ -33,6 +33,10 @@ export default function HomeScreen() {
 
         <ScrollView className="p-4 bg-white dark:bg-black">
             <ContinueReadingCarousel />
+
+        {/* <Pressable onPress={clearContinueReading} className="bg-red-500 px-4 py-2 rounded">
+          <Text className="text-white text-center font-semibold">Borrar historial</Text>
+        </Pressable> */}
         </ScrollView>
     </View>
   );

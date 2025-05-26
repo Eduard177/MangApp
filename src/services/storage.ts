@@ -7,6 +7,7 @@ export const saveMangaToContinueReading = async (
   manga: any,
   lastReadChapterId: string,
 ) => {
+  
   if (!manga?.id || !lastReadChapterId) {
     console.warn('Datos inválidos para guardar en continue_reading');
     return;
@@ -23,18 +24,18 @@ export const saveMangaToContinueReading = async (
         ?.fileName ?? null,
     lastReadChapterId,
     timestamp: Date.now(),
+    chapter: manga.attributes?.chapter
   };
 
   try {
     const existing = await AsyncStorage.getItem(CONTINUE_READING_KEY);
     let history = existing ? JSON.parse(existing) : [];
 
-    history = history.filter((e: any) => e.id !== manga.id);
+    history = history.filter((e: any) => e.mangaId !== manga.id);
 
     history.unshift(entry);
 
     history = history.slice(0, 10);
-
     await AsyncStorage.setItem(CONTINUE_READING_KEY, JSON.stringify(history));
   } catch (e) {
     console.error('Error saving to continue reading:', e);
