@@ -112,6 +112,7 @@ export const getChaptersByMangaId = async (
   mangaId: string,
   limit = 10,
   offset = 0,
+  order: 'asc' | 'desc' = 'asc',
 ) => {
   const lang = await getApiLanguage();
   const response = await api.get(`/chapter`, {
@@ -119,7 +120,7 @@ export const getChaptersByMangaId = async (
       manga: mangaId,
       translatedLanguage: [lang],
       order: {
-        chapter: 'asc',
+        chapter: order,
       },
       limit,
       offset,

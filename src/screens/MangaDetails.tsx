@@ -35,6 +35,8 @@ export default function MangaDetailScreen() {
   const [loading, setLoading] = useState(false);
   const [index, setIndex] = useState(0);
   const [authorName, setAuthorName] = useState<string | null>(null);
+  const [reverseOrder, setReverseOrder] = useState(false);
+
   const [routes] = useState([
     { key: 'general', title: 'General' },
     { key: 'chapters', title: 'Chapters' },
@@ -63,8 +65,8 @@ export default function MangaDetailScreen() {
     if (loading || !hasMore) return;
     setLoading(true);
     try {
-      const response = await getChaptersByMangaId(manga.id, 20, offset);
-      const newChapters = response.data ?? [];
+      const response = await getChaptersByMangaId(manga.id, 20, offset, reverseOrder ? 'desc' : 'asc');
+      let newChapters = response.data ?? [];
       setChapters((prev) => [...prev, ...newChapters]);
       setOffset((prev) => prev + 20);
       setHasMore(newChapters.length === 20);
@@ -73,6 +75,12 @@ export default function MangaDetailScreen() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleOrder = () => {
+    setReverseOrder((prev) => !prev);
+    setOffset(0);
+    setChapters([]);
   };
 
   const getAuthorName = async () => {
@@ -90,7 +98,7 @@ export default function MangaDetailScreen() {
   useEffect(() => {
     fetchChapters();
     getAuthorName();
-  }, []);
+  }, [reverseOrder]);
 
   const GeneralRoute = () => (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
@@ -245,8 +253,8 @@ export default function MangaDetailScreen() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <Animated.View style={{ opacity: fadeAnim }}>
                 {index === 1 && (
-                  <Pressable onPress={() => console.log('Filtrar')}>
-                    <Ionicons name="swap-vertical" size={20} color="gray" />
+                  <Pressable onPress={toggleOrder}>
+                    <Ionicons name="swap-vertical" size={20} color={reverseOrder ? '#FF3E91' : 'gray'}  />
                   </Pressable>
                 )}
               </Animated.View>
