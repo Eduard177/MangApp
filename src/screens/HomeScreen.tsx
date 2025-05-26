@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { clearContinueReading, getContinueReading } from '../services/storage';
 import Navbar from '../components/Navbar';
 import { Pressable, ScrollView, View, Text } from 'react-native';
@@ -6,10 +6,17 @@ import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
 import MainBar from '../components/MainBar';
+import { Modalize } from 'react-native-modalize';
+import FilterModal from '../components/FilterModal';
 
 export default function HomeScreen() {
   const [continueReading, setContinueReading] = useState([]);
   const [reloadFlag, setReloadFlag] = useState(false);
+  const filterRef = useRef<Modalize>(null);
+
+  const openFilterModal = () => {
+    filterRef.current?.open();
+  };
   const route = useRoute();
   
   useEffect(() => {
@@ -22,7 +29,6 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      // Al volver a la pantalla, recarga el historial
       useContinueReadingStore.getState().toggleReload();
     }, [])
 );
@@ -30,7 +36,7 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
       <Navbar
-        onFilter={() => console.log('Filter pressed')}
+        onFilter={() => openFilterModal()}
         onReload={() => setReloadFlag((prev) => !prev)}
       />
 
@@ -41,7 +47,7 @@ export default function HomeScreen() {
           <Text className="text-white text-center font-semibold">Borrar historial</Text>
         </Pressable> */}
         </ScrollView>
-
+        <FilterModal ref={filterRef} />
         <MainBar currentRouteName={route.name}/>
         
     </View>

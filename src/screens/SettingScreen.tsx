@@ -1,13 +1,14 @@
 // src/screens/SettingsScreen.tsx
-import { View, Text, Switch, TouchableOpacity, ScrollView, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import { useState } from 'react';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation';
 import Logo from '../assets/Logo.svg';
 import MainBar from '../components/MainBar';
+import MSwitch from '../components/MSwitch';
 export default function SettingsScreen() {
-  const [onlyUpdates, setOnlyUpdates] = useState(false);
+  const [onlyDownloaded, setOnlyDownloaded] = useState(false);
   const [incognitoMode, setIncognitoMode] = useState(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -34,12 +35,9 @@ export default function SettingsScreen() {
             <Ionicons name="cloud-offline" size={20} color="#ec4899" />
             <Text className="text-base font-medium">Only updates</Text>
           </View>
-          <Switch               
-              value={onlyUpdates}
-              onValueChange={setOnlyUpdates}
-              trackColor={{false: '#B4B4B4', true: '#F8BBD5' }}
-              thumbColor={onlyUpdates ? '#FF3E91' : '#B4B4B4'}
-              ios_backgroundColor="#FFFFFF" />
+          <MSwitch               
+              value={onlyDownloaded}
+              onValueChange={setOnlyDownloaded}/>
         </View>
 
         <View className="flex-row items-center justify-between">
@@ -47,13 +45,9 @@ export default function SettingsScreen() {
             <Ionicons name="glasses-outline" size={20} color="#ec4899" />
             <Text className="text-base font-medium">Mod Incognito</Text>
           </View>
-          <Switch
-              value={incognitoMode}
-              onValueChange={setIncognitoMode}
-              trackColor={{false: '#B4B4B4', true: '#F8BBD5' }}
-              thumbColor={incognitoMode ? '#FF3E91' : '#B4B4B4'}
-              ios_backgroundColor="#FFFFFF" 
-            />
+          <MSwitch 
+              value={incognitoMode} 
+              onValueChange={setIncognitoMode}/>
         </View>
       </View>
 

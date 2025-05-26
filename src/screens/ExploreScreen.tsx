@@ -1,11 +1,12 @@
 import { FlatList, View } from 'react-native';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
 import MangaCarousel from '../components/MangaCarousel';
 import { fetchPopularMangas, fetchMangaGender } from '../services/mangaService';
 import { GENRES } from '../utils/genres/genreConstants';
 import MainBar from '../components/MainBar';
 import { useRoute } from '@react-navigation/native';
+import { Modalize } from 'react-native-modalize';
 
 type GenreItem = {
   title: string;
@@ -28,12 +29,17 @@ const genreList: GenreItem[] = [
 ];
 export default function ExploreScreen() {
   const [reloadFlag, setReloadFlag] = useState(false);
+  const filterRef = useRef<Modalize>(null);
+
+  const openFilterModal = () => {
+    filterRef.current?.open();
+  };
   const route = useRoute();
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
       <Navbar
-        onFilter={() => console.log('Filter pressed')}
+        onFilter={() => openFilterModal()}
         onReload={() => setReloadFlag((prev) => !prev)}
       />
 
