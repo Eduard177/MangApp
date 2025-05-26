@@ -2,17 +2,19 @@
 import { View, Text, Switch, TouchableOpacity, ScrollView, Pressable } from 'react-native';
 import { useState } from 'react';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation';
 import Logo from '../assets/Logo.svg';
+import MainBar from '../components/MainBar';
 export default function SettingsScreen() {
   const [onlyUpdates, setOnlyUpdates] = useState(false);
   const [incognitoMode, setIncognitoMode] = useState(false);
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  
+  const route = useRoute();
   return (
-    <ScrollView className="flex-1 bg-gray-100 px-4 pt-11 top-4">
+    <View className='flex-1'>
+    <ScrollView className="bg-gray-100 px-4 pt-11 top-4">
       <View className="items-center mb-6">
         <View>
             <Pressable onPress={() =>
@@ -72,5 +74,8 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </View>
     </ScrollView>
+
+    <MainBar currentRouteName={route.name}/>
+  </View>
   );
 }

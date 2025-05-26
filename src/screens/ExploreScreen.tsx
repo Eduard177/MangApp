@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar';
 import MangaCarousel from '../components/MangaCarousel';
 import { fetchPopularMangas, fetchMangaGender } from '../services/mangaService';
 import { GENRES } from '../utils/genres/genreConstants';
+import MainBar from '../components/MainBar';
+import { useRoute } from '@react-navigation/native';
 
 type GenreItem = {
   title: string;
@@ -26,6 +28,7 @@ const genreList: GenreItem[] = [
 ];
 export default function ExploreScreen() {
   const [reloadFlag, setReloadFlag] = useState(false);
+  const route = useRoute();
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
@@ -46,6 +49,8 @@ export default function ExploreScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
       />
+
+      <MainBar currentRouteName={route.name}/>
     </View>
   );
 }

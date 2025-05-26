@@ -3,12 +3,15 @@ import { clearContinueReading, getContinueReading } from '../services/storage';
 import Navbar from '../components/Navbar';
 import { Pressable, ScrollView, View, Text } from 'react-native';
 import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
+import MainBar from '../components/MainBar';
 
 export default function HomeScreen() {
   const [continueReading, setContinueReading] = useState([]);
   const [reloadFlag, setReloadFlag] = useState(false);
+  const route = useRoute();
+  
   useEffect(() => {
     const loadContinueReading = async () => {
       const data = await getContinueReading();
@@ -38,6 +41,9 @@ export default function HomeScreen() {
           <Text className="text-white text-center font-semibold">Borrar historial</Text>
         </Pressable> */}
         </ScrollView>
+
+        <MainBar currentRouteName={route.name}/>
+        
     </View>
   );
 }
