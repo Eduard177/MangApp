@@ -15,6 +15,7 @@ import ChaptersTab from '../components/ChaptersTab';
 import { Ionicons } from '@expo/vector-icons';
 import DescargarCompletoCheck from '../assets/DescargarCompleto.svg'
 import { getApiLanguage } from '../utils/getApiLang';
+import { isMangaSaved, removeManga, saveManga } from '../services/favorites';
 
 const initialLayout = { width: Dimensions.get('window').width };
 const screenHeight = Dimensions.get('window').height;
@@ -44,6 +45,15 @@ export default function MangaDetailScreen() {
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [lang, setLang] = useState('en');
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    const checkSaved = async () => {
+      const result = await isMangaSaved(manga.id);
+      setIsSaved(result);
+    };
+    checkSaved();
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -258,8 +268,15 @@ export default function MangaDetailScreen() {
                   </Pressable>
                 )}
               </Animated.View>
-              <Pressable onPress={() => console.log('Guardar')}>
-                <Ionicons name="bookmark-outline" size={20} color="gray" />
+              <Pressable onPress={async () => {
+                  if (isSaved) {
+                    await removeManga(manga.id);
+                  } else {
+                    await saveManga(manga);
+                  }
+                  setIsSaved(!isSaved);
+                }}>
+                <Ionicons name="bookmark" size={20} color={isSaved ? '#FF3E91' : 'gray'} />
               </Pressable>
             </View>
           </View>

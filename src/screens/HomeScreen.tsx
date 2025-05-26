@@ -8,6 +8,7 @@ import { useContinueReadingStore } from '../store/useContinueReadingStore';
 import MainBar from '../components/MainBar';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
+import SavedMangasGrid from '../components/SavedMangas';
 
 export default function HomeScreen() {
   const [continueReading, setContinueReading] = useState([]);
@@ -43,9 +44,7 @@ export default function HomeScreen() {
         <ScrollView className="p-4 bg-white dark:bg-black">
             <ContinueReadingCarousel />
 
-        {/* <Pressable onPress={clearContinueReading} className="bg-red-500 px-4 py-2 rounded">
-          <Text className="text-white text-center font-semibold">Borrar historial</Text>
-        </Pressable> */}
+        <SavedMangasGrid numColumns={3} />
         </ScrollView>
         <FilterModal ref={filterRef} />
         <MainBar currentRouteName={route.name}/>
