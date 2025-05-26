@@ -35,8 +35,7 @@ export default function ChapterReader() {
   const [showControls, setShowControls] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const [manga, setManga] = useState<any>(null);
-  const screenHeight = Dimensions.get('window').height;
-
+  const [imageHeights, setImageHeights] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     const fetchChapterPages = async () => {
@@ -105,27 +104,35 @@ export default function ChapterReader() {
 
   return (
     <View className="flex-1 bg-black">
-    <FlatList
-      data={chapterImages}
-      keyExtractor={(_, index) => index.toString()}
-      renderItem={({ item, index }) => (
-        <Pressable onPress={() => setShowControls(!showControls)}>
-          <Image
-            source={{ uri: item }}
-            style={{ width: SCREEN_WIDTH, height: screenHeight }} // usar height completo
-            resizeMode="contain"
+      <FlatList
+            data={chapterImages}
+            keyExtractor={(_, index) => index.toString()}
+            renderItem={({ item }) => {
+              const imageHeight = imageHeights[item] ?? SCREEN_WIDTH * 1.5; // fallback height
+
+              return (
+                <Pressable onPress={() => setShowControls(prev => !prev)}>
+                  <View style={{ width: SCREEN_WIDTH, height: imageHeight, backgroundColor: 'black' }}>
+                    <Image
+                      source={{ uri: item }}
+                      style={{ width: SCREEN_WIDTH, height: imageHeight }}
+                      resizeMode="contain"
+                      onLoad={(e) => {
+                        const { width, height } = e.nativeEvent.source;
+                        if (width && height) {
+                          const scaledHeight = (SCREEN_WIDTH / width) * height;
+                          setImageHeights(prev => ({ ...prev, [item]: scaledHeight }));
+                        }
+                      }}
+                    />
+                  </View>
+                </Pressable>
+              );
+            }}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={viewabilityConfig}
+            showsVerticalScrollIndicator={false}
           />
-        </Pressable>
-      )}
-      pagingEnabled
-      onViewableItemsChanged={onViewableItemsChanged}
-      viewabilityConfig={viewabilityConfig}
-      getItemLayout={(_, index) => ({
-        length: screenHeight,
-        offset: screenHeight * index,
-        index,
-      })}
-    />
 
     {showControls && (
         <ChapterReaderControls
