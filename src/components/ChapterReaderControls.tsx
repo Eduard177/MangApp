@@ -1,4 +1,4 @@
-// src/components/ChapterReaderControls.tsx
+
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,7 +24,6 @@ export default function ChapterReaderControls({
 }: Readonly<ChapterReaderControlsProps>) {
   return (
     <>
-      {/* Header - solo una franja superior con fondo claro */}
       <View className=" absolute top-0 inset-x-0 bg-black/30 px-4 pt-12 pb-3 flex-row justify-between items-center z-10">
         <Pressable onPress={onClose}>
           <Ionicons name="arrow-back" size={26} color="white" />

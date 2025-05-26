@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   Dimensions,
   Pressable,
   ScrollView,
+  Animated,
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import { TabView, TabBar } from 'react-native-tab-view';
@@ -13,6 +14,7 @@ import { getAuthorManga, getChaptersByMangaId } from '../services/mangadexApi';
 import ChaptersTab from '../components/ChaptersTab';
 import { Ionicons } from '@expo/vector-icons';
 import DescargarCompletoCheck from '../assets/DescargarCompleto.svg'
+import { getApiLanguage } from '../utils/getApiLang';
 
 const initialLayout = { width: Dimensions.get('window').width };
 const screenHeight = Dimensions.get('window').height;
@@ -38,6 +40,25 @@ export default function MangaDetailScreen() {
     { key: 'chapters', title: 'Chapters' },
   ]);
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [lang, setLang] = useState('en');
+
+  useEffect(() => {
+    const load = async () => {
+      const l = await getApiLanguage();
+      setLang(l);
+    };
+    load();
+  }, []);
+
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: index === 1 ? 1 : 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [index]);
+
   const fetchChapters = async () => {
     if (loading || !hasMore) return;
     setLoading(true);
@@ -59,7 +80,7 @@ export default function MangaDetailScreen() {
       const author = manga.relationships?.find((rel: any) => rel.type === 'author');
       if (author) {
         const authorName = await getAuthorManga(author.id);
-        setAuthorName(authorName.attributes.name);
+        setAuthorName(authorName?.attributes?.name);
       }
     } catch (error) {
       console.error('Error fetching author name:', error);
@@ -74,7 +95,7 @@ export default function MangaDetailScreen() {
   const GeneralRoute = () => (
     <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
       <Text className="text-base text-gray-700 dark:text-gray-300 mb-4">
-        {manga.attributes.description?.en ?? 'No description available.'}
+        {manga.attributes.description[lang] ?? 'No description available.'}
       </Text>
       <Text className="font-semibold mb-1">Genres:</Text>
       <Text className="text-sm text-gray-600">
@@ -191,13 +212,49 @@ export default function MangaDetailScreen() {
         lazy
         swipeEnabled={true}
         renderTabBar={(props) => (
-          <TabBar
-            {...props}
-            indicatorStyle={{ backgroundColor: 'deeppink' }}
-            style={{ backgroundColor: 'white' }}
-            activeColor="black"
-            inactiveColor="gray"
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              backgroundColor: '#fff',
+              borderBottomWidth: 0.5,
+              borderBottomColor: '#eee',
+              paddingHorizontal: 10,
+            }}
+          >
+            <TabBar
+              {...props}
+              style={{
+                backgroundColor: '#fff',
+                elevation: 0,
+                flex: 1,
+              }}
+              indicatorStyle={{
+                backgroundColor: '#FF3E91',
+                height: 3,
+                borderRadius: 4,
+              }}
+              activeColor="#000"
+              inactiveColor="#999"
+              pressColor="#f0f0f0"
+              tabStyle={{ width: 'auto', paddingHorizontal: 16 }}
+              scrollEnabled={false}
+            />
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Animated.View style={{ opacity: fadeAnim }}>
+                {index === 1 && (
+                  <Pressable onPress={() => console.log('Filtrar')}>
+                    <Ionicons name="swap-vertical" size={20} color="gray" />
+                  </Pressable>
+                )}
+              </Animated.View>
+              <Pressable onPress={() => console.log('Guardar')}>
+                <Ionicons name="bookmark-outline" size={20} color="gray" />
+              </Pressable>
+            </View>
+          </View>
         )}
       />
 
