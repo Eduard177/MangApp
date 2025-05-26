@@ -1,19 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   Image,
   Dimensions,
   Pressable,
-  FlatList,
-  ActivityIndicator,
   ScrollView,
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
-import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { TabView, TabBar } from 'react-native-tab-view';
 import { getAuthorManga, getChaptersByMangaId } from '../services/mangadexApi';
 import ChaptersTab from '../components/ChaptersTab';
 import { Ionicons } from '@expo/vector-icons';
+import DescargarCompletoCheck from '../assets/DescargarCompleto.svg'
 
 const initialLayout = { width: Dimensions.get('window').width };
 const screenHeight = Dimensions.get('window').height;
@@ -131,23 +130,57 @@ export default function MangaDetailScreen() {
           </Pressable>
 
           <Pressable onPress={() => console.log('Download pressed')} className="flex-1 justify-between items-end p-10 px-5">
-            <Ionicons name="cloud-download" size={30} color="white" />
+            <DescargarCompletoCheck/>
           </Pressable>
           </View>
         </View>
 
-
-        <View className="absolute bottom-6 left-4">
-          <Text className="text-pink-500 font-bold mb-1">En curso</Text>
-          <Text className="text-white text-2xl font-bold">
-            {manga.attributes.title.en ?? manga.attributes.altTitles?.find((t) => t.en)?.en}
-          </Text>
-          {manga.relationships?.find((rel) => rel.type === 'author') && (
-            <Text className="text-white opacity-80 text-sm italic">
-              By: {authorName ?? 'Unknown'}
-            </Text>
-          )}
-        </View>
+        {(() => {
+            let statusBgColor = '', statusTextColor = '', statusLabel = '';
+            switch (manga?.attributes?.status) {
+              case 'completed':
+                statusBgColor = 'bg-green-500';
+                statusTextColor = 'text-white';
+                statusLabel = 'Completed';
+                break;
+              case 'ongoing':
+                statusBgColor = 'bg-pink-500';
+                statusTextColor = 'text-white';
+                statusLabel = 'On Going';
+                break;
+              case 'hiatus':
+                statusBgColor = 'bg-yellow-400';
+                statusTextColor = 'text-black';
+                statusLabel = 'Hiatus';
+                break;
+              case 'cancelled':
+                statusBgColor = 'bg-red-500';
+                statusTextColor = 'text-white';
+                statusLabel = 'Cancelled';
+                break;
+              default:
+                statusBgColor = 'bg-gray-500';
+                statusTextColor = 'text-white';
+                statusLabel = manga?.attributes?.status ?? 'Desconocido';
+            }
+          return (
+            <View className="absolute bottom-6 left-4">
+              <View className={`self-start rounded-full px-3 py-1 ${statusBgColor}`}>
+                <Text className={`font-bold text-sm ${statusTextColor}`}>
+                  {statusLabel}
+                </Text>
+              </View>
+              <Text className="text-white text-2xl font-bold">
+                {manga.attributes.title.en ?? manga.attributes.altTitles?.find((t) => t.en)?.en}
+              </Text>
+              {manga.relationships?.find((rel) => rel.type === 'author') && (
+                <Text className="text-white opacity-80 text-sm italic">
+                  By: {authorName ?? 'Unknown'}
+                </Text>
+              )}
+            </View>
+          );
+        })()}
       </View>
 
       <TabView

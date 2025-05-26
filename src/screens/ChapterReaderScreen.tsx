@@ -9,13 +9,13 @@ import {
   Button,
   Linking,
   Pressable,
+  ViewToken
 } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { featchGetChapterPages } from '../services/mangaService';
 import { fetchMangaById, getChapterPagesExternal } from '../services/mangadexApi';
 import {  saveMangaToContinueReading } from '../services/storage';
 import ChapterReaderControls from '../components/ChapterReaderControls';
-import { ViewToken } from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 

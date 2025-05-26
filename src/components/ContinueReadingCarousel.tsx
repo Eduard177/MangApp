@@ -1,8 +1,9 @@
 import { View, Text, FlatList, Image, Pressable } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { clearContinueReading, getContinueReading } from '../services/storage';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
+
 
 export default function ContinueReadingCarousel() {
   const [history, setHistory] = useState([]);
@@ -51,7 +52,6 @@ export default function ContinueReadingCarousel() {
           </Pressable>
         )}
       />
-
       <Pressable onPress={clearContinueReading} className="bg-red-500 px-4 py-2 rounded">
         <Text className="text-white text-center font-semibold">Borrar historial</Text>
       </Pressable>
