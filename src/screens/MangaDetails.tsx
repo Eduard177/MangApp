@@ -7,15 +7,17 @@ import {
   Pressable,
   ScrollView,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import { TabView, TabBar } from 'react-native-tab-view';
 import { getAuthorManga, getChaptersByMangaId } from '../services/mangadexApi';
 import ChaptersTab from '../components/ChaptersTab';
 import { Ionicons } from '@expo/vector-icons';
-import DescargarCompletoCheck from '../assets/DescargarCompleto.svg'
 import { getApiLanguage } from '../utils/getApiLang';
 import { isMangaSaved, removeManga, saveManga } from '../services/favorites';
+import { deleteManga, downloadManga, isMangaDownloaded } from '../utils/downloadManga';
+import DownloadFullIcon from '../assets/components/DownloadFullIcon';
 
 const initialLayout = { width: Dimensions.get('window').width };
 const screenHeight = Dimensions.get('window').height;
@@ -46,6 +48,8 @@ export default function MangaDetailScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [lang, setLang] = useState('en');
   const [isSaved, setIsSaved] = useState(false);
+  const [isDownloaded, setIsDownloaded] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     const checkSaved = async () => {
@@ -92,6 +96,21 @@ export default function MangaDetailScreen() {
     setOffset(0);
     setChapters([]);
   };
+
+  useEffect(() => {
+  const checkDownload = async () => {
+    const totalChapterIds = chapters?.map((c) => c.id);
+    const result = await isMangaDownloaded(manga.id, totalChapterIds);
+    setIsDownloaded(result);
+  };
+
+    checkDownload();
+  }, [manga, chapters]);
+
+  const opacity = fadeAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
 
   const getAuthorName = async () => {
     try {
@@ -168,8 +187,30 @@ export default function MangaDetailScreen() {
             <Ionicons name="arrow-back" size={30} color="white" />
           </Pressable>
 
-          <Pressable onPress={() => console.log('Download pressed')} className="flex-1 justify-between items-end p-10 px-5">
-            <DescargarCompletoCheck/>
+          <Pressable   onPress={async () => {
+              if (isDownloading) return;
+
+              if (isDownloaded) {
+                await deleteManga(manga.id);
+                setIsDownloaded(false);
+              } else {
+                setIsDownloading(true);
+                await downloadManga(manga.id, chapters);
+                setIsDownloaded(true);
+                setIsDownloading(false);
+              }
+            }}
+          disabled={isDownloading} 
+          className="flex-1 justify-between items-end p-10 px-5" 
+          style={{
+            opacity: isDownloading ? 0.6 : 1,
+            pointerEvents: isDownloading ? 'none' : 'auto',
+          }}>
+            {isDownloading ? (
+                <ActivityIndicator size="small" color="#FF3E91" />
+              ) : (
+                <DownloadFullIcon downloaded={isDownloaded} />
+              )}
           </Pressable>
           </View>
         </View>
@@ -261,7 +302,7 @@ export default function MangaDetailScreen() {
             />
 
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <Animated.View style={{ opacity: fadeAnim }}>
+              <Animated.View style={{ opacity }}>
                 {index === 1 && (
                   <Pressable onPress={toggleOrder}>
                     <Ionicons name="swap-vertical" size={20} color={reverseOrder ? '#FF3E91' : 'gray'}  />

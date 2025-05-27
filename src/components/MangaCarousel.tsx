@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, ActivityIndicator, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const LIMIT = 5;
+const LIMIT = 8;
 const MAX_TOTAL = 20;
 
 export const getCoverUrl = (item: any) => {

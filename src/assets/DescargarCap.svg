@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-path">
+      <circle id="Elipse_25" data-name="Elipse 25" cx="12" cy="12" r="12" transform="translate(368 13)" fill="#fff" stroke="#707070" stroke-width="1"/>
+    </clipPath>
+  </defs>
+  <g id="Enmascarar_grupo_18" data-name="Enmascarar grupo 18" transform="translate(-368 -13)" clip-path="url(#clip-path)">
+    <g id="direct-download" transform="translate(372.092 16.41)" opacity="0.669">
+      <path id="Trazado_16" data-name="Trazado 16" d="M9.954,11.226a.493.493,0,0,1-.357-.153L6.137,7.449a.5.5,0,0,1,.357-.836H8.306V2.824A.825.825,0,0,1,9.13,2h1.648a.825.825,0,0,1,.824.824V6.613h1.812a.5.5,0,0,1,.357.836l-3.46,3.625A.493.493,0,0,1,9.954,11.226Z" transform="translate(-2.046)"/>
+      <path id="Trazado_17" data-name="Trazado 17" d="M14.663,20.636H1.153A1.155,1.155,0,0,1,0,19.483v-.33A1.155,1.155,0,0,1,1.153,18h13.51a1.155,1.155,0,0,1,1.153,1.153v.33A1.155,1.155,0,0,1,14.663,20.636Z" transform="translate(0 -5.456)"/>
+    </g>
+  </g>
+</svg>

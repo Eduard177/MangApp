@@ -16,6 +16,7 @@ import { featchGetChapterPages } from '../services/mangaService';
 import { fetchMangaById, getChapterPagesExternal } from '../services/mangadexApi';
 import {  saveMangaToContinueReading } from '../services/storage';
 import ChapterReaderControls from '../components/ChapterReaderControls';
+import { getOfflineChapter } from '../utils/offlineUtils';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -41,6 +42,15 @@ export default function ChapterReader() {
     const fetchChapterPages = async () => {
       try {
         setIsLoading(true);
+
+        const localImages = await getOfflineChapter(chapterId);
+          if (localImages && localImages.length > 0) {
+            setChapterImages(localImages);
+            const manga = await fetchMangaById(mangaId);
+            setManga(manga);
+            return;
+          }
+
         const res = await featchGetChapterPages(chapterId);
         const manga = await fetchMangaById(mangaId);
         setManga(manga);

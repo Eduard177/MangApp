@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Text, FlatList, Pressable, ActivityIndicator, View } from 'react-native';
+import { downloadChapter } from '../utils/downloadChapter';
 
 export default function ChaptersTab({
   chapters,
@@ -34,7 +35,7 @@ export default function ChaptersTab({
                 {item.attributes.title ?? 'Sin título'}
               </Text>
             </View>
-            <Pressable onPress={() => console.log('Download pressed')}>
+            <Pressable onPress={() => downloadChapter(item.id, mangaId)}>
               <Ionicons name="cloud-download" size={25} className="" />
             </Pressable>
           </View>
