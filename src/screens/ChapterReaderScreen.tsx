@@ -17,6 +17,7 @@ import { fetchMangaById, getChapterPagesExternal } from '../services/mangadexApi
 import {  saveMangaToContinueReading } from '../services/storage';
 import ChapterReaderControls from '../components/ChapterReaderControls';
 import { getOfflineChapter } from '../utils/offlineUtils';
+import { markChapterAsRead } from '../utils/readHistory';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -38,6 +39,10 @@ export default function ChapterReader() {
   const [manga, setManga] = useState<any>(null);
   const [imageHeights, setImageHeights] = useState<{ [key: string]: number }>({});
 
+  useEffect(() => {
+    markChapterAsRead(chapterId);
+  }, [chapterId]);
+  
   useEffect(() => {
     const fetchChapterPages = async () => {
       try {

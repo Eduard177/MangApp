@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
 import ChapterItem from './ChaptersItem';
+import { getReadChapters } from '../utils/readHistory';
 
 export default function ChaptersTab({
   chapters,
@@ -12,6 +13,22 @@ export default function ChaptersTab({
   mangaId,
   navigation,
 }: any) {
+
+  const [readChapters, setReadChapters] = useState<string[]>([]);
+
+  useEffect(() => {
+    loadReadChapters();
+  }, []);
+
+  const loadReadChapters = async () => {
+    const stored = await getReadChapters();
+    setReadChapters(stored);
+  };
+
+  const handleChapterRead = (chapterId: string) => {
+    setReadChapters((prev) => [...new Set([...prev, chapterId])]);
+  };
+
   return (
     <FlatList
       data={chapters}
@@ -23,6 +40,8 @@ export default function ChaptersTab({
           item={item}
           mangaId={mangaId}
           navigation={navigation}
+          isRead={readChapters.includes(item.id)}
+          onMarkAsRead={handleChapterRead}
         />
       )}
       ListFooterComponent={loading ? <ActivityIndicator className="my-4" /> : null}
