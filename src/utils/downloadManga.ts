@@ -16,7 +16,7 @@ export const downloadManga = async (mangaId: string, chapters: any[]) => {
 
 export const isMangaDownloaded = async (mangaId: string, totalChapters: string[]) => {
   try {
-    const chaptersDir = `${FileSystem.documentDirectory}${mangaId}`;
+    const chaptersDir = `${FileSystem.documentDirectory}/${mangaId}`;
     const dirs = await FileSystem.readDirectoryAsync(chaptersDir);
 
     const downloaded = totalChapters.every((chapterId) => dirs.includes(chapterId));
