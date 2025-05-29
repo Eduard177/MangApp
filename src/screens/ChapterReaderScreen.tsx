@@ -100,7 +100,7 @@ export default function ChapterReader() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
+      <View className="flex-1 justify-center items-center dark:bg-gray-900">
         <ActivityIndicator size="large" />
       </View>
     );
@@ -118,7 +118,7 @@ export default function ChapterReader() {
   }
 
   return (
-    <View className="flex-1 bg-black">
+    <View className="flex-1 bg-black dark:bg-gray-900">
       <FlatList
             data={chapterImages}
             keyExtractor={(_, index) => index.toString()}

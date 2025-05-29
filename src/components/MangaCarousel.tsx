@@ -63,8 +63,8 @@ function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonl
   };
 
   return (
-    <View className="mb-6 min-h-[240px]">
-      <Text className="text-xl font-bold mb-2">{title}</Text>
+    <View className="mb-6 min-h-[240px] dark:bg-gray-900">
+      <Text className="text-xl font-bold mb-2 dark:text-white">{title}</Text>
       <FlatList
         horizontal
         data={mangas}
@@ -78,7 +78,7 @@ function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonl
               source={{ uri: getCoverUrl(item) }}
               style={{ width: 120, height: 180, borderRadius: 8 }}
             />
-            <Text numberOfLines={1} className="mt-1 w-28 text-sm font-medium text-left">
+            <Text numberOfLines={1} className="mt-1 w-28 text-sm font-medium text-left dark:text-white">
               {item.manga?.attributes?.title?.en ??
                 item.attributes?.title?.en ??
                 item.manga?.attributes?.altTitles?.find((t) => t.en)?.en ??
@@ -87,7 +87,7 @@ function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonl
             </Text>
             <Text
               numberOfLines={2}
-              className="mt-1 w-28 text-xs text-gray-400 leading-tight text-left"
+              className="mt-1 w-28 text-xs text-gray-400 leading-tight text-left "
             >
               {getGendersNames(item.manga?.attributes?.tags ?? item.attributes?.tags)}
             </Text>

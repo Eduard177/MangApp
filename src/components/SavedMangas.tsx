@@ -41,7 +41,7 @@ export default function SavedMangasGrid({ numColumns = 3 }: Readonly<Props>) {
 
   return (
     <View className="mt-4">
-      <Text className="text-lg font-bold mb-2">Saved</Text>
+      <Text className="text-lg font-bold mb-2 dark:text-white">Saved</Text>
       <FlatList
         data={savedMangas}
         key={numColumns}

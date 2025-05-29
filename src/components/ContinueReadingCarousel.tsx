@@ -25,7 +25,7 @@ export default function ContinueReadingCarousel() {
 
   return (
     <View className="mb-6">
-      <Text className="text-lg font-bold mb-2">Continue Reading</Text>
+      <Text className="text-lg font-bold mb-2 dark:text-white">Continue Reading</Text>
       <FlatList
         data={history}
         horizontal
@@ -45,7 +45,7 @@ export default function ContinueReadingCarousel() {
               source={{ uri: getCoverUrl(item) }}
               style={{ width: 120, height: 180, borderRadius: 8 }}
             />
-            <Text className="mt-1 w-28 text-sm font-medium text-left" numberOfLines={1}>
+            <Text className="mt-1 w-28 text-sm font-medium text-left dark:text-white" numberOfLines={1}>
               {item.title ?? 'Sin título'}
             </Text>
             <Text className="text-xs text-pink-500">Capítulo {item.chapter}</Text>

@@ -41,7 +41,7 @@ export default function HomeScreen() {
         onReload={() => setReloadFlag((prev) => !prev)}
       />
 
-        <ScrollView className="p-4 bg-white dark:bg-black">
+        <ScrollView className="p-4 bg-white dark:bg-gray-900">
             <ContinueReadingCarousel />
 
         <SavedMangasGrid numColumns={3} />

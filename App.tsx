@@ -4,16 +4,18 @@ import Navigation from './src/navigation';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useDownloadedMangas } from './src/store/useDownloadedMangas';
+import { useColorScheme } from 'nativewind';
 
 export default function App() {
   useEffect(() => {
     useDownloadedMangas.getState().loadDownloaded();
   }, []);
-
+    const colorScheme = useColorScheme();
+  
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
-        <StatusBar style="dark" translucent={false} backgroundColor="#ffffff" />
+        <StatusBar style={colorScheme.colorScheme === 'dark' ? 'light' : 'dark'} translucent={false} backgroundColor="#ffffff" />
         <Navigation />
       </NavigationContainer>
     </GestureHandlerRootView>

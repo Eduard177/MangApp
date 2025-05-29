@@ -25,7 +25,7 @@ export default function DownloadChapterIcon({ downloaded = false, isDownloading 
       y2="2.091"
       transform="translate(10.5 13.409)"
       stroke="#FF3E91"
-      strokeWidth="1" // Reducido de 2.5 a 1
+      strokeWidth="1" 
       strokeLinecap="round"
     />
     <Line
@@ -33,13 +33,12 @@ export default function DownloadChapterIcon({ downloaded = false, isDownloading 
       y2="7.091"
       transform="translate(13.5 8.409)"
       stroke="#FF3E91"
-      strokeWidth="1" // Reducido de 2.5 a 1
+      strokeWidth="1"
       strokeLinecap="round"
     />
   </G>
 </Svg>
   ) : (
-    // SVG con flecha hacia abajo
     <Svg x="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24">
       <Defs>
         <ClipPath id="clip-path">

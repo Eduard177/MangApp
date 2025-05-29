@@ -87,14 +87,14 @@ export default function SearchScreen({ navigation }: any) {
     } else {
       listFooter = (
         <View className="my-4 items-center">
-          <Text className="text-gray-500 mt-2">No hay más resultados</Text>
+          <Text className="text-gray-500 mt-2 dark:text-white">No hay más resultados</Text>
         </View>
       );
     }
   }
 
   return (
-    <View className="flex-1 pt-12 px-4 bg-white dark:bg-black">
+    <View className="flex-1 pt-12 px-4 bg-white dark:bg-gray-700">
       <TextInput
         placeholder="Buscar manga..."
         placeholderTextColor="#999"

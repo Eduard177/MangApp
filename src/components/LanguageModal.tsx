@@ -33,17 +33,17 @@ const LanguageModal = forwardRef<Modalize>((_, ref) => {
 
   return (
     <Modalize ref={ref} adjustToContentHeight>
-      <View className="p-4">
+      <View className="p-4 dark:bg-gray-700">
         <Text className="text-base font-bold mb-4">Idioma preferido</Text>
         {LANGUAGES.map((lang) => (
           <Pressable
             key={lang.value}
             onPress={() => select(lang.value)}
-            className={`flex-row items-center justify-between px-4 py-2 rounded-md mb-2 border ${
-              selected === lang.value ? 'border-pink-500 bg-pink-50' : 'border-gray-300'
+            className={`flex-row items-center justify-between px-4 py-2 rounded-md mb-2 border  ${
+              selected === lang.value ? 'border-pink-500 bg-pink-50 dark:bg-gray-700' : 'border-gray-300'
             }`}
           >
-            <Text className="text-sm">{lang.label}</Text>
+            <Text className="text-sm dark:text-white">{lang.label}</Text>
             {selected === lang.value && (
               <Text className="text-pink-500 font-semibold">✓</Text>
             )}

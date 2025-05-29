@@ -35,7 +35,7 @@ export default function ChapterReaderControls({
               manga?.attributes?.altTitles?.find((t) => t.en)?.en ??
               'Sin título'}
           </Text>
-          <Text className="text-white text-xs text-center">Capítulo {currentPage + 1}</Text>
+          <Text className="text-white text-xs text-center">Chapter {currentPage + 1}</Text>
         </View>
 
         <Pressable onPress={onSave}>

@@ -18,6 +18,7 @@ import { getApiLanguage } from '../utils/getApiLang';
 import { isMangaSaved, removeManga, saveManga } from '../services/favorites';
 import { deleteManga, downloadManga, isMangaDownloaded } from '../utils/downloadManga';
 import DownloadFullIcon from '../assets/components/DownloadFullIcon';
+import { useColorScheme } from 'nativewind';
 
 const initialLayout = { width: Dimensions.get('window').width };
 const screenHeight = Dimensions.get('window').height;
@@ -50,6 +51,7 @@ export default function MangaDetailScreen() {
   const [isSaved, setIsSaved] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const colorScheme = useColorScheme();
 
   useEffect(() => {
     const checkSaved = async () => {
@@ -130,12 +132,12 @@ export default function MangaDetailScreen() {
   }, [reverseOrder]);
 
   const GeneralRoute = () => (
-    <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
+    <ScrollView className="flex-1 dark:bg-gray-800" contentContainerStyle={{ padding: 16 }}>
       <Text className="text-base text-gray-700 dark:text-gray-300 mb-4">
         {manga.attributes.description[lang] ?? 'No description available.'}
       </Text>
-      <Text className="font-semibold mb-1">Genres:</Text>
-      <Text className="text-sm text-gray-600">
+      <Text className="font-semibold mb-1 dark:text-gray-400">Genres:</Text>
+      <Text className="text-sm text-gray-600 dark:text-gray-200">
         {manga.attributes.tags
           ?.map((tag: { attributes: { name: { en: any } } }) => tag.attributes.name.en)
           .join(', ') ?? 'Unknown'}
@@ -163,7 +165,7 @@ export default function MangaDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white dark:bg-gray-800 ">
       <View className="relative">
         <Image
           source={{
@@ -272,20 +274,12 @@ export default function MangaDetailScreen() {
         swipeEnabled={true}
         renderTabBar={(props) => (
           <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              backgroundColor: '#fff',
-              borderBottomWidth: 0.5,
-              borderBottomColor: '#eee',
-              paddingHorizontal: 10,
-            }}
+            className='flex flex-row items-center justify-between bg-white border-b border-b-[0.5px] border-b-[#eee] px-2.5 dark:bg-gray-800'
           >
             <TabBar
               {...props}
               style={{
-                backgroundColor: '#fff',
+                backgroundColor: colorScheme.colorScheme === 'dark' ? '#1f2937' : '#fff',
                 elevation: 0,
                 flex: 1,
               }}
@@ -294,14 +288,14 @@ export default function MangaDetailScreen() {
                 height: 3,
                 borderRadius: 4,
               }}
-              activeColor="#000"
+              activeColor={colorScheme.colorScheme === 'dark'? '#fff': '#1f2937'}
               inactiveColor="#999"
               pressColor="#f0f0f0"
               tabStyle={{ width: 'auto', paddingHorizontal: 16 }}
               scrollEnabled={false}
             />
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View className="flex flex-row items-center gap-3 dark:bg-gray-800">
               <Animated.View style={{ opacity }}>
                 {index === 1 && (
                   <Pressable onPress={toggleOrder}>
