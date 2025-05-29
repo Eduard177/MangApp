@@ -1,18 +1,24 @@
+import Toast from 'react-native-toast-message';
 import { downloadChapter } from './downloadChapter';
 import * as FileSystem from 'expo-file-system';
 
-export const downloadManga = async (mangaId: string, chapters: any[]) => {
-  for (const chapter of chapters) {
-    const chapterId = chapter.id;
-    const success = await downloadChapter(chapterId, mangaId);
-    if (!success) {
-      console.warn(`Falló la descarga del capítulo ${chapterId}`);
-    }
+export async function downloadManga(
+  mangaId: string,
+  chapters: any[],
+  onChapterDownloaded?: (index: number) => void
+) {
+  for (let i = 0; i < chapters.length; i++) {
+    await downloadChapter(chapters[i].id, mangaId);
+    onChapterDownloaded?.(i + 1);
   }
 
-  console.log('Manga completo descargado');
-};
-
+    Toast.show({
+      type: 'success',
+      text1: '¡Descarga completada!',
+      text2: `${chapters.length} capítulos descargados`,
+      visibilityTime: 1500,
+    });
+}
 
 export const isMangaDownloaded = async (mangaId: string, totalChapters: string[]) => {
   try {

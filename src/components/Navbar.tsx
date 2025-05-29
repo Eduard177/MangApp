@@ -3,8 +3,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NavigationProp } from '@react-navigation/native'; // ajusta el path según tu proyecto
 import { RootStackParamList } from '../navigation';
-import Logo from '../assets/Logo.svg';
 import { useColorScheme } from 'nativewind';
+import Logo from '../assets/components/Logo';
 
 interface NavbarProps {
   onFilter: () => void;

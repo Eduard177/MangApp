@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
 import { TabView, TabBar } from 'react-native-tab-view';
-import { getAuthorManga, getChaptersByMangaId } from '../services/mangadexApi';
+import { fetchAllChapters, getAuthorManga, getChaptersByMangaId } from '../services/mangadexApi';
 import ChaptersTab from '../components/ChaptersTab';
 import { Ionicons } from '@expo/vector-icons';
 import { getApiLanguage } from '../utils/getApiLang';
@@ -19,6 +19,9 @@ import { isMangaSaved, removeManga, saveManga } from '../services/favorites';
 import { deleteManga, downloadManga, isMangaDownloaded } from '../utils/downloadManga';
 import DownloadFullIcon from '../assets/components/DownloadFullIcon';
 import { useColorScheme } from 'nativewind';
+import { queueDownload } from '../services/backgroundDownloadMangaer';
+import { downloadChapter } from '../utils/downloadChapter';
+import Toast from 'react-native-toast-message';
 
 const initialLayout = { width: Dimensions.get('window').width };
 const screenHeight = Dimensions.get('window').height;
@@ -50,7 +53,8 @@ export default function MangaDetailScreen() {
   const [lang, setLang] = useState('en');
   const [isSaved, setIsSaved] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const colorScheme = useColorScheme();
 
   useEffect(() => {
@@ -76,6 +80,33 @@ export default function MangaDetailScreen() {
       useNativeDriver: true,
     }).start();
   }, [index]);
+
+  const handleDownloadAllChapters = async () => {
+    setIsDownloadingAll(true);
+    const mangaId = manga?.id
+    const allChapters = await fetchAllChapters(mangaId);
+
+    Toast.show({
+      type: 'info',
+      text1: 'Iniciando descarga...',
+      text2: `Total capítulos: ${allChapters.length}`,
+      visibilityTime: 1500,
+      autoHide: false,
+    });
+
+    queueDownload(async () => {
+      await downloadManga(manga.id, allChapters, (completed) => {
+        Toast.show({
+          type: 'info',
+          text1: 'Descargando...',
+          text2: `Capítulo ${completed}/${allChapters.length}`,
+          autoHide: false,
+          visibilityTime: 1500,
+        });
+      });
+    });
+    setIsDownloadingAll(false);
+  };
 
   const fetchChapters = async () => {
     if (loading || !hasMore) return;
@@ -107,7 +138,7 @@ export default function MangaDetailScreen() {
   };
 
     checkDownload();
-  }, [manga, chapters]);
+  }, [manga, chapters, refreshKey]);
 
   const opacity = fadeAnim.interpolate({
     inputRange: [0, 1],
@@ -189,26 +220,28 @@ export default function MangaDetailScreen() {
             <Ionicons name="arrow-back" size={30} color="white" />
           </Pressable>
 
-          <Pressable   onPress={async () => {
-              if (isDownloading) return;
+          <Pressable onPress={async () => {
+              if (isDownloadingAll) return;
 
               if (isDownloaded) {
                 await deleteManga(manga.id);
-                setIsDownloaded(false);
+                setRefreshKey((prev) => prev + 1);
+                setIsDownloadingAll(false);
               } else {
-                setIsDownloading(true);
-                await downloadManga(manga.id, chapters);
+                setIsDownloadingAll(true);
+                await handleDownloadAllChapters()
+                setRefreshKey((prev) => prev + 1);
                 setIsDownloaded(true);
-                setIsDownloading(false);
+                setIsDownloadingAll(false);
               }
             }}
-          disabled={isDownloading} 
+          disabled={isDownloadingAll} 
           className="flex-1 justify-between items-end p-10 px-5" 
           style={{
-            opacity: isDownloading ? 0.6 : 1,
-            pointerEvents: isDownloading ? 'none' : 'auto',
+            opacity: isDownloadingAll ? 0.6 : 1,
+            pointerEvents: isDownloadingAll ? 'none' : 'auto',
           }}>
-            {isDownloading ? (
+            {isDownloadingAll ? (
                 <ActivityIndicator size="small" color="#FF3E91" />
               ) : (
                 <DownloadFullIcon downloaded={isDownloaded} />

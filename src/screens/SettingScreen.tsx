@@ -4,12 +4,12 @@ import { useRef, useState } from 'react';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation';
-import Logo from '../assets/Logo.svg';
 import MainBar from '../components/MainBar';
 import MSwitch from '../components/MSwitch';
 import LanguageModal from '../components/LanguageModal';
 import { Modalize } from 'react-native-modalize';
 import DarkModeToggle from '../components/DarkModeToggle';
+import Logo from '../assets/components/Logo';
 export default function SettingsScreen() {
   const [onlyDownloaded, setOnlyDownloaded] = useState(false);
   const [incognitoMode, setIncognitoMode] = useState(false);

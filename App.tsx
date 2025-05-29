@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useDownloadedMangas } from './src/store/useDownloadedMangas';
 import { useColorScheme } from 'nativewind';
+import Toast from 'react-native-toast-message';
 
 export default function App() {
   useEffect(() => {
@@ -18,6 +19,7 @@ export default function App() {
         <StatusBar style={colorScheme.colorScheme === 'dark' ? 'light' : 'dark'} translucent={false} backgroundColor="#ffffff" />
         <Navigation />
       </NavigationContainer>
+      <Toast />
     </GestureHandlerRootView>
   );
 }

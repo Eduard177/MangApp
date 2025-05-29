@@ -9,11 +9,15 @@ export const downloadChapter = async (chapterId: string, mangaId: string) => {
     const dir = `${FileSystem.documentDirectory}/${mangaId}/${chapterId}`;
     await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
 
+      console.log(`Descargando capítulo ${chapterId} del manga ${mangaId}`);
+
     for (const fileName of chapter.data) {
       const url = `${baseUrl}/data/${chapter.hash}/${fileName}`;
       const localPath = `${dir}/${fileName}`;
       await FileSystem.downloadAsync(url, localPath);
     }
+
+      console.log(`Capitulo descargado ${chapterId} del manga ${mangaId}`);
 
     return true;
   } catch (error) {

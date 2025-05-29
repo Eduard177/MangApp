@@ -162,3 +162,26 @@ export const fetchMangaById = async (mangaId: string) => {
     throw error;
   }
 };
+
+export const fetchAllChapters = async (mangaId: string) => {
+  let allChapters: any[] = [];
+  let offset = 0;
+  const limit = 100;
+  const lang = await getApiLanguage();
+
+  while (true) {
+    const res = await api.get('/chapter', {
+      params: {
+        limit,
+        offset,
+        manga: mangaId,
+        translatedLanguage:[lang]
+      }
+    })
+    if (!res?.data?.data?.length) break;
+    allChapters = allChapters.concat(res.data.data);
+    offset += limit;
+  }
+
+  return allChapters;
+};
