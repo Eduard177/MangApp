@@ -16,7 +16,7 @@ export default function DarkModeToggle() {
     <View className="flex-row items-center justify-between ">
         <View className="flex-row items-center space-x-2">
             <Ionicons name={colorScheme === 'dark' ? 'moon-outline' : 'sunny-outline'} size={20} color="#ec4899" />
-            <Text className="text-base font-medium  dark:text-white">Mod Incognito</Text>
+            <Text className="text-base font-medium  dark:text-white">{colorScheme === 'dark' ? 'Ligth Mode' : 'Dark Mode'}</Text>
         </View>
       <MSwitch value={colorScheme === 'dark'} onValueChange={toggleTheme} />
     </View>

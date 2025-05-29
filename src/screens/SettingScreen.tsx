@@ -37,7 +37,7 @@ export default function SettingsScreen() {
           <View className="flex-row items-center justify-between mb-4 ">
             <View className="flex-row items-center space-x-2">
               <Ionicons name="cloud-offline" size={20} color="#ec4899" />
-              <Text className="text-base font-medium dark:text-white">Only updates</Text>
+              <Text className="text-base font-medium dark:text-white">Only downloaded</Text>
             </View>
           <MSwitch               
               value={onlyDownloaded}

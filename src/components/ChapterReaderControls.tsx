@@ -42,8 +42,6 @@ export default function ChapterReaderControls({
           <Ionicons name="bookmark-outline" size={24} color="white" />
         </Pressable>
       </View>
-
-      {/* Footer - barra de navegación + progreso */}
       <View className="absolute bottom-6 inset-x-0 px-6 z-10">
         <View className="flex-row justify-between items-center mb-2">
           <Pressable onPress={onPrevChapter}>
