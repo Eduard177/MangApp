@@ -3,6 +3,7 @@ import { Text, View, Pressable } from 'react-native';
 import { deleteChapter, downloadChapter, isChapterDownloaded } from '../utils/downloadChapter';
 import DownloadChapterIcon from '../assets/components/DownloadCharpterIcon';
 import { markChapterAsRead } from '../utils/readHistory';
+import { useIncognito } from '../context/incognito-context';
 interface ChapterItemProps {
   item: any;
   mangaId: string;
@@ -13,6 +14,7 @@ interface ChapterItemProps {
 export default function ChapterItem({ item, mangaId, navigation, isRead, onMarkAsRead }: Readonly<ChapterItemProps>) {
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const { incognito } = useIncognito();
 
   useEffect(() => {
     const check = async () => {
@@ -35,8 +37,10 @@ export default function ChapterItem({ item, mangaId, navigation, isRead, onMarkA
 
   
   const handleOpenReader = async () => {
-    await markChapterAsRead(item.id);
-    onMarkAsRead(item.id);
+    if (!incognito) {
+      await markChapterAsRead(item.id);
+      onMarkAsRead(item.id);
+    }
     navigation.navigate('ChapterReader', {
         chapterId: item.id,
         mangaId,
@@ -52,14 +56,14 @@ export default function ChapterItem({ item, mangaId, navigation, isRead, onMarkA
         <View className="flex-1 flex-row items-center space-x-1">
           <Text
             className={`text-base font-medium ${
-              isRead ? 'text-pink-500' : 'text-black dark:text-white'
+              !incognito && isRead ? 'text-pink-500' : 'text-black dark:text-white'
             }`}
           >
             Capítulo {item.attributes.chapter ?? 'N/A'}
           </Text>
           <Text
             className={`text-sm font-open-sans ${
-              isRead ? 'text-pink-500' : 'text-gray-900 dark:text-gray-300'
+              !incognito && isRead ? 'text-pink-500' : 'text-gray-900 dark:text-gray-300'
             }`}
           >
             {item.attributes.title ?? 'Sin título'}

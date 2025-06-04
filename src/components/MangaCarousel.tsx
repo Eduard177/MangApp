@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, ActivityIndicator, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LIMIT = 8;
 const MAX_TOTAL = 20;
@@ -24,6 +25,26 @@ function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonl
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const navigation = useNavigation();
+  const CACHE_KEY = `carousel-cache-${title}`;
+
+  useEffect(() => {
+    const loadCache = async () => {
+      try {
+        const cachedData = await AsyncStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          const parsed = JSON.parse(cachedData);
+          setMangas(parsed);
+          setOffset(parsed.length);
+        } else {
+          loadMore(); // Solo si no hay caché
+        }
+      } catch (e) {
+        console.error('Error loading cache:', e);
+      }
+    };
+
+    loadCache();
+  }, []);
 
   const loadMore = async () => {
     if (!fetchFunction || loading || !hasMore) return;
@@ -36,6 +57,9 @@ function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonl
       const updated = [...mangas, ...filtered];
       setMangas(updated);
       setOffset((prev) => prev + LIMIT);
+
+      // Guardar en caché
+      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(updated));
 
       if (updated.length >= MAX_TOTAL || filtered.length < LIMIT) {
         setHasMore(false);

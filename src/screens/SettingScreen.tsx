@@ -10,11 +10,11 @@ import LanguageModal from '../components/LanguageModal';
 import { Modalize } from 'react-native-modalize';
 import DarkModeToggle from '../components/DarkModeToggle';
 import Logo from '../assets/components/Logo';
+import { useIncognito } from '../context/incognito-context';
 export default function SettingsScreen() {
   const [onlyDownloaded, setOnlyDownloaded] = useState(false);
-  const [incognitoMode, setIncognitoMode] = useState(false);
+  const { incognito, toggleIncognito } = useIncognito();
   const languageModalRef = useRef<Modalize>(null);
-
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute();
   return (
@@ -50,8 +50,9 @@ export default function SettingsScreen() {
               <Text className="text-base font-medium dark:text-white">Mod Incognito</Text>
             </View>
             <MSwitch 
-                value={incognitoMode} 
-                onValueChange={setIncognitoMode}/>
+                value={incognito} 
+                onValueChange={toggleIncognito}
+            />
           </View>
 
           <DarkModeToggle />

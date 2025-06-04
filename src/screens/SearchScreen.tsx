@@ -7,7 +7,6 @@ import {
   Image,
   Pressable,
   ActivityIndicator,
-  Button,
 } from 'react-native';
 import { searchManga } from '../services/mangadexApi';
 

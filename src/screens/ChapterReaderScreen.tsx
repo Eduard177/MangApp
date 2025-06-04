@@ -18,6 +18,7 @@ import {  saveMangaToContinueReading } from '../services/storage';
 import ChapterReaderControls from '../components/ChapterReaderControls';
 import { getOfflineChapter } from '../utils/offlineUtils';
 import { markChapterAsRead } from '../utils/readHistory';
+import { useIncognito } from '../context/incognito-context';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -38,10 +39,13 @@ export default function ChapterReader() {
   const [currentPage, setCurrentPage] = useState(0);
   const [manga, setManga] = useState<any>(null);
   const [imageHeights, setImageHeights] = useState<{ [key: string]: number }>({});
+  const { incognito } = useIncognito();
 
   useEffect(() => {
-    markChapterAsRead(chapterId);
-  }, [chapterId]);
+    if (!incognito && chapterId) {
+      markChapterAsRead(chapterId);
+    }
+  }, [chapterId, incognito]);
   
   useEffect(() => {
     const fetchChapterPages = async () => {
@@ -67,14 +71,18 @@ export default function ChapterReader() {
           const externalUrl = atributes?.externalUrl;
           setExternalUrl(externalUrl);
 
-        await saveMangaToContinueReading(manga, chapterId);
+          if (!incognito) {
+            await saveMangaToContinueReading(manga, chapterId);
+          }
         } else {
           const images = chapter.data.map(
             (fileName: string) => `${baseUrl}/data/${chapter.hash}/${fileName}`,
           );
           setChapterImages(images);
 
-         await saveMangaToContinueReading(manga, chapterId);
+          if (!incognito) {
+            await saveMangaToContinueReading(manga, chapterId);
+          }
         }
       } catch (error) {
         console.error('Error fetching chapter images:', error);
@@ -84,7 +92,7 @@ export default function ChapterReader() {
     };
 
     fetchChapterPages();
-  }, [chapterId]);
+  }, [chapterId, mangaId]); // Agregué mangaId a las dependencias
 
     const viewabilityConfig = {
       viewAreaCoveragePercentThreshold: 50,
