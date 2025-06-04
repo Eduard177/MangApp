@@ -34,8 +34,8 @@ A manga reading application built with **React Native** using **Expo** and the *
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/yourusername/manga-reader-app.git
-cd manga-reader-app
+git clone https://github.com/Eduard177/MangApp.git
+cd mangApp
 ````
 
 2. Install dependencies:
