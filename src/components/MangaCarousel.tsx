@@ -23,7 +23,7 @@ function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonl
   const [mangas, setMangas] = useState<any[]>(initialData);
   const [offset, setOffset] = useState(initialData.length);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(true); 
   const navigation = useNavigation();
   const CACHE_KEY = `carousel-cache-${title}`;
 
@@ -88,7 +88,14 @@ function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonl
 
   return (
     <View className="mb-6 min-h-[240px] dark:bg-gray-900">
-      <Text className="text-xl font-bold mb-2 dark:text-white">{title}</Text>
+      <View className="flex-row justify-between items-center mb-2">
+        <Text className="text-xl font-bold dark:text-white">{title}</Text>
+        {fetchFunction && (
+          <Pressable onPress={() => navigation.navigate('MangaListScreen', { title, fetchFunction, data })}>
+            <Text className="text-pink-500 text-sm font-semibold">Ver todo →</Text>
+          </Pressable>
+        )}
+      </View>
       <FlatList
         horizontal
         data={mangas}

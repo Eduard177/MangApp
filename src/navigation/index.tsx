@@ -6,6 +6,7 @@ import ChapterReaderScreen from '../screens/ChapterReaderScreen';
 import SettingsScreen from '../screens/SettingScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import HomeScreen from '../screens/HomeScreen';
+import MangaListScreen from '../screens/MangaListScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -14,6 +15,7 @@ export type RootStackParamList = {
   ChapterReader: undefined;
   SearchScreen: undefined;
   SettingScreen: undefined;
+  MangaListScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -30,6 +32,7 @@ export default function Navigation() {
         options={{ title: 'Readding...', animation: 'fade'}}
       />
       <Stack.Screen name="SearchScreen" component={SearchScreen} options={{ animation: 'none'}}  />
+      <Stack.Screen name="MangaListScreen" component={MangaListScreen} options={{ title: 'Todos los mangas' }} />
       <Stack.Screen name="SettingScreen" component={SettingsScreen} options={{ animation: 'fade', animationDuration: 300, gestureEnabled: false}}  />
     </Stack.Navigator>
   );
