@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
   },
   button: {
-    padding: 10,
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
