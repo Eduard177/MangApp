@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, FlatList, ActivityIndicator, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 const LIMIT = 8;
 const MAX_TOTAL = 20;
@@ -92,7 +93,7 @@ function MangaCarousel({ title, fetchFunction, data, initialData = [] }: Readonl
         <Text className="text-xl font-bold dark:text-white">{title}</Text>
         {fetchFunction && (
           <Pressable onPress={() => navigation.navigate('MangaListScreen', { title, fetchFunction, data })}>
-            <Text className="text-pink-500 text-sm font-semibold">Ver todo →</Text>
+            <Ionicons name="arrow-forward" size={26} color="#ec4899" />
           </Pressable>
         )}
       </View>

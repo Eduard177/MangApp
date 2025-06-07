@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, FlatList, Image, ActivityIndicator, Pressable } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getCoverUrl } from '../components/MangaCarousel'; // reutiliza tu función
+import Navbar from '../components/Navbar';
+import { Modalize } from 'react-native-modalize';
+import FilterModal from '../components/FilterModal';
 
 const LIMIT = 20;
 
@@ -13,8 +16,14 @@ export default function MangaListScreen() {
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const navigation = useNavigation();
+  const [reloadFlag, setReloadFlag] = useState(false);
 
+  const filterRef = useRef<Modalize>(null);
+  
+  const navigation = useNavigation();
+  const openFilterModal = () => {
+    filterRef.current?.open();
+  };
   const loadMore = async () => {
     if (!fetchFunction || loading || !hasMore) return;
     setLoading(true);
@@ -35,6 +44,11 @@ export default function MangaListScreen() {
   }, []);
 
   return (
+    <View className='flex-1'>
+      <Navbar
+        onFilter={() => openFilterModal()}
+        onReload={() => setReloadFlag((prev) => !prev)}
+      />
     <View className="flex-1 bg-white dark:bg-gray-900 p-4">
       <Text className="text-2xl font-bold mb-4 dark:text-white">{title}</Text>
       <FlatList
@@ -63,6 +77,10 @@ export default function MangaListScreen() {
         onEndReachedThreshold={0.5}
         ListFooterComponent={loading ? <ActivityIndicator /> : null}
       />
+      <FilterModal ref={filterRef}/>
+
     </View>
+    </View>
+
   );
 }

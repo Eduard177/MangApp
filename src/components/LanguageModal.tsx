@@ -34,7 +34,7 @@ const LanguageModal = forwardRef<Modalize>((_, ref) => {
   return (
     <Modalize ref={ref} adjustToContentHeight>
       <View className="p-4 dark:bg-gray-700">
-        <Text className="text-base font-bold mb-4">Idioma preferido</Text>
+        <Text className="text-base font-bold mb-4 dark:text-white">Idioma preferido</Text>
         {LANGUAGES.map((lang) => (
           <Pressable
             key={lang.value}

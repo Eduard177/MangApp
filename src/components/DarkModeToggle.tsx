@@ -1,4 +1,3 @@
-// components/DarkModeToggle.tsx
 import React, { useCallback } from 'react';
 import { Text, View } from 'react-native';
 import { useColorScheme } from 'nativewind';
@@ -13,8 +12,6 @@ export default function DarkModeToggle() {
         toggleColorScheme();
       } catch (error) {
         console.warn('Error al cambiar el tema:', error);
-        const newScheme = colorScheme === 'dark' ? 'light' : 'dark';
-        setColorScheme(newScheme);
       }
     }, [colorScheme, toggleColorScheme, setColorScheme]);
 

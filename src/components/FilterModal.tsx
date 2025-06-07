@@ -15,8 +15,8 @@ import { Modalize } from 'react-native-modalize';
 const { width, height } = Dimensions.get('window');
 
 interface FilterModalProps {
-  numColumns: number;
-  setNumColumns: React.Dispatch<React.SetStateAction<number>>;
+  numColumns?: number;
+  setNumColumns?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const FilterModal = forwardRef<Modalize, FilterModalProps>(({ numColumns, setNumColumns }, ref) => {
@@ -157,27 +157,28 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(({ numColumns, setNum
                   <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>Empezados</Text>
                 </View>
               </View>
-
-              <View style={{ width }}>
-                <View style={styles.columnsRow}>
-                  {[2, 3, 4, 5].map((num) => (
-                    <TouchableOpacity
-                      key={num}
-                      onPress={() => setNumColumns(num)}
-                      style={[styles.chip, numColumns === num && styles.chipSelected]}
-                    >
-                      <Text
-                        style={{
-                          color: numColumns === num ? '#fff' : '#1f2937',
-                          fontWeight: '600',
-                        }}
-                      >
-                        {num} columnas
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
+              {typeof numColumns !== 'undefined' && (
+                  <View style={{ width }}>
+                    <View style={styles.columnsRow}>
+                      {[2, 3, 4, 5].map((num) => (
+                        <TouchableOpacity
+                          key={num}
+                          onPress={() => setNumColumns(num)}
+                          style={[styles.chip, numColumns === num && styles.chipSelected]}
+                        >
+                          <Text
+                            style={{
+                              color: numColumns === num ? '#fff' : '#1f2937',
+                              fontWeight: '600',
+                            }}
+                          >
+                            {num} columnas
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+              )}
             </Animated.View>
           </View>
         </Animated.View>

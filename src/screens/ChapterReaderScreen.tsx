@@ -11,9 +11,9 @@ import {
   Pressable,
   ViewToken
 } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { featchGetChapterPages } from '../services/mangaService';
-import { fetchMangaById, getChapterPagesExternal } from '../services/mangadexApi';
+import { fetchAllChapters, fetchMangaById, getChapterPagesExternal } from '../services/mangadexApi';
 import {  saveMangaToContinueReading } from '../services/storage';
 import ChapterReaderControls from '../components/ChapterReaderControls';
 import { getOfflineChapter } from '../utils/offlineUtils';
@@ -40,13 +40,14 @@ export default function ChapterReader() {
   const [manga, setManga] = useState<any>(null);
   const [imageHeights, setImageHeights] = useState<{ [key: string]: number }>({});
   const { incognito } = useIncognito();
+  const [chapters, setChapters] = useState<any[]>([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (!incognito && chapterId) {
       markChapterAsRead(chapterId);
     }
   }, [chapterId, incognito]);
-  
   useEffect(() => {
     const fetchChapterPages = async () => {
       try {
@@ -63,6 +64,9 @@ export default function ChapterReader() {
         const res = await featchGetChapterPages(chapterId);
         const manga = await fetchMangaById(mangaId);
         setManga(manga);
+        const chaptersList = await fetchAllChapters(mangaId) ?? [];
+        setChapters(chaptersList);
+
         const { baseUrl, chapter } = res;
         const url = await getChapterPagesExternal(chapterId);
         const atributes = url?.data?.attributes;
@@ -97,6 +101,7 @@ export default function ChapterReader() {
     const viewabilityConfig = {
       viewAreaCoveragePercentThreshold: 50,
     };
+    const currentChapterIndex = chapters.findIndex(ch => ch.id === chapterId);
 
     const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
       if (viewableItems.length > 0) {
@@ -104,6 +109,27 @@ export default function ChapterReader() {
         setCurrentPage(index);
       }
     }).current;
+
+    const goToChapter = (chapterId: string) => {
+      navigation.navigate('ChapterReader', { chapterId, mangaId });
+    };
+
+    const handleNextChapter =  async () => {
+      if (currentChapterIndex < chapters.length - 1) {
+        const nextChapter = chapters[currentChapterIndex + 1];
+        goToChapter(nextChapter.id);
+        await markChapterAsRead(nextChapter.id);
+      }
+    };
+
+    const handlePrevChapter = async () => {
+      if (currentChapterIndex > 0) {
+        const prevChapter = chapters[currentChapterIndex - 1];
+        goToChapter(prevChapter.id);
+        await markChapterAsRead(prevChapter.id);
+      }
+    };
+
 
 
   if (isLoading) {
@@ -162,9 +188,8 @@ export default function ChapterReader() {
           currentPage={currentPage}
           totalPages={chapterImages.length}
           onClose={() => setShowControls(false)}
-          onNextChapter={() => console.log('Siguiente capítulo')}
-          onPrevChapter={() => console.log('Capítulo anterior')}
-          onSave={() => console.log('Guardar manga')}
+          onNextChapter={handleNextChapter}
+          onPrevChapter={handlePrevChapter}
           manga={manga}
         />
       )}

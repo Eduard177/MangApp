@@ -3,7 +3,7 @@ import Svg, { G, Path, Defs, ClipPath, Circle } from 'react-native-svg';
 
 export default function HomeIcon({ fill = '#FF3E91' }) {
   return (
-    <Svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+    <Svg width="40" height="40" viewBox="0 0 30 30" fill="none">
       <Defs>
         <ClipPath id="clip-path">
           <Circle cx="15" cy="15" r="15" transform="translate(0.281 0.602)" fill={fill} />
