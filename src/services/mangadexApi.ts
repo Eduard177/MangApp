@@ -6,6 +6,11 @@ const api = axios.create({
   baseURL: BASE_URL,
 });
 
+type Filters = {
+  orderBy?: 'rating' | 'followedCount' | 'createdAt' | 'updatedAt';
+  direction?: 'asc' | 'desc';
+};
+
 export const searchManga = async (
   title: string,
   limit: number = 10,
@@ -47,41 +52,91 @@ export const getChapterImages = async (chapterId: string) => {
   return res.data;
 };
 
-export const getPopularManga = async (limit = 5, offset = 0) => {
+export const getPopularManga = async (
+  limit = 8,
+  offset = 0,
+  filters: Filters = {}
+) => {
   try {
     const lang = await getApiLanguage();
-    const res = await api.get(`/manga`, {
+    const { orderBy = 'rating', direction = 'desc' } = filters;
+
+    const res = await api.get('/manga', {
       params: {
         limit,
         offset,
         availableTranslatedLanguage: [lang],
-        'order[rating]': 'desc',
+        [`order[${orderBy}]`]: direction,
         includes: ['cover_art'],
       },
     });
-    return res.data;
+
+    return res.data?.data ?? [];
   } catch (error) {
-    console.error('Error al obtener mangas:', error);
+    console.error('Error al obtener mangas populares:', error);
     throw error;
   }
 };
 
-export const getGenderManga = async (limit = 5, offset = 0, genderArr = '') => {
+export const getMangaGenre = async (
+  limit = 8,
+  offset = 0,
+  filters: Filters = {},
+  genreId: string,
+) => {
   try {
     const lang = await getApiLanguage();
-    const res = await api.get(`/manga`, {
+    const { orderBy = 'rating', direction = 'desc' } = filters;
+
+    const res = await api.get('/manga', {
       params: {
         limit,
         offset,
+        includedTags: [genreId],
         availableTranslatedLanguage: [lang],
-        'order[rating]': 'desc',
+        [`order[${orderBy}]`]: direction,
         includes: ['cover_art'],
-        includedTags: [genderArr],
       },
     });
+
+    return res.data?.data ?? [];
+  } catch (error) {
+    console.error('Error al obtener mangas por género:', error);
+    throw error;
+  }
+};
+
+export const getFilteredManga = async ({
+  limit = 10,
+  offset = 0,
+  tag = '',
+  orderBy = 'rating',
+  direction = 'desc',
+}: {
+  limit?: number;
+  offset?: number;
+  tag?: string;
+  orderBy?: 'rating' | 'followedCount' | 'createdAt' | 'updatedAt' | 'year';
+  direction?: 'asc' | 'desc';
+}) => {
+  try {
+    const lang = await getApiLanguage();
+    const params: any = {
+      limit,
+      offset,
+      availableTranslatedLanguage: [lang],
+      includes: ['cover_art'],
+      [`order[${orderBy}]`]: direction,
+    };
+
+    if (tag) {
+      params.includedTags = [tag];
+    }
+
+    const res = await api.get(`/manga`, { params });
     return res.data;
   } catch (error) {
-    console.error('Error al obtener mangas:', error);
+    console.error('Error al filtrar mangas:', error);
     throw error;
   }
 };

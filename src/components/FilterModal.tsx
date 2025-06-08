@@ -18,16 +18,18 @@ interface FilterModalProps {
   numColumns?: number;
   setNumColumns?: React.Dispatch<React.SetStateAction<number>>;
   filterContext: 'home' | 'explore' | 'mangaList';
-  onFilterChange?: (filters: { [key: string]: boolean }) => void;
+  onFilterChange?: (filters: { [key: string]: any }) => void;
 }
 
 const FilterModal = forwardRef<Modalize, FilterModalProps>(
-  ({ numColumns, setNumColumns, filterContext, onFilterChange}, ref) => {
+  ({ numColumns, setNumColumns, filterContext, onFilterChange }, ref) => {
     const [filters, setFilters] = useState({
       onlyDownloaded: false,
       unread: false,
       completed: false,
       started: false,
+      orderBy: 'rating',
+      direction: 'desc',
     });
     const [visible, setVisible] = useState(false);
     const [activeTab, setActiveTab] = useState<'filter' | 'appear'>('filter');
@@ -86,7 +88,7 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
       ref.current?.close();
     };
 
-    const updateFilter = (key: string, value: boolean) => {
+    const updateFilter = (key: string, value: any) => {
       const updated = { ...filters, [key]: value };
       setFilters(updated);
       onFilterChange?.(updated);
@@ -101,11 +103,7 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
         statusBarTranslucent={true}
       >
         <Animated.View style={[styles.modalOverlay, { opacity: opacityAnim }]}>
-          <TouchableOpacity
-            style={styles.modalBackground}
-            activeOpacity={1}
-            onPress={handleClose}
-          />
+          <TouchableOpacity style={styles.modalBackground} activeOpacity={1} onPress={handleClose} />
           <Animated.View
             style={[
               styles.modalContainer,
@@ -117,163 +115,135 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
           >
             <View style={[styles.handle, { backgroundColor: isDark ? '#fff' : '#ccc' }]} />
 
+            {/* --- HOME FILTER --- */}
             {filterContext === 'home' && (
-                <View style={styles.content}>
-                  <View style={styles.tabBar}>
-                    <TouchableOpacity
-                      style={[styles.tabItem, activeTab === 'filter' && styles.activeTab]}
-                      onPress={() => handleTabChange('filter')}
-                    >
-                      <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
-                        Filter
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[styles.tabItem, activeTab === 'appear' && styles.activeTab]}
-                      onPress={() => handleTabChange('appear')}
-                    >
-                      <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
-                        Appear
-                      </Text>
-                    </TouchableOpacity>
+              <View style={styles.content}>
+                <View style={styles.tabBar}>
+                  <TouchableOpacity
+                    style={[styles.tabItem, activeTab === 'filter' && styles.activeTab]}
+                    onPress={() => handleTabChange('filter')}
+                  >
+                    <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
+                      Filter
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.tabItem, activeTab === 'appear' && styles.activeTab]}
+                    onPress={() => handleTabChange('appear')}
+                  >
+                    <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
+                      Appear
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Animated.View
+                  style={{
+                    flexDirection: 'row',
+                    width: width * 2,
+                    transform: [
+                      {
+                        translateX: tabSlideAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, -width],
+                        }),
+                      },
+                    ],
+                  }}
+                >
+                  <View style={{ width }}>
+                    {['onlyDownloaded', 'unread', 'completed', 'started'].map((key) => (
+                      <View key={key} style={styles.row}>
+                        <MSwitch
+                          value={filters[key]}
+                          onValueChange={(val) => updateFilter(key, val)}
+                        />
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          {key.charAt(0).toUpperCase() + key.slice(1)}
+                        </Text>
+                      </View>
+                    ))}
                   </View>
 
-                  <Animated.View
-                    style={{
-                      flexDirection: 'row',
-                      width: width * 2,
-                      transform: [
-                        {
-                          translateX: tabSlideAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -width],
-                          }),
-                        },
-                      ],
-                    }}
-                  >
+                  {typeof numColumns !== 'undefined' && (
                     <View style={{ width }}>
-                      <View style={styles.row}>
-                        <MSwitch value={filters.onlyDownloaded} onValueChange={(val) => updateFilter('onlyDownloaded', val)} />
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          Downloaded
-                        </Text>
-                      </View>
-
-                      <View style={styles.row}>
-                        <MSwitch value={filters.unread} onValueChange={(val) => updateFilter('unread', val)} />
-
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          Unread
-                        </Text>
-                      </View>
-
-                      <View style={styles.row}>
-                        <MSwitch value={filters.completed} onValueChange={(val) => updateFilter('completed', val)} />
-
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          Completed
-                        </Text>
-                      </View>
-
-                      <View style={styles.row}>
-                        <MSwitch value={filters.started} onValueChange={(val) => updateFilter('started', val)} />
-
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          Started
-                        </Text>
+                      <View style={styles.columnsRow}>
+                        {[2, 3, 4, 5].map((num) => (
+                          <TouchableOpacity
+                            key={num}
+                            onPress={() => setNumColumns(num)}
+                            style={[styles.chip, numColumns === num && styles.chipSelected]}
+                          >
+                            <Text
+                              style={{
+                                color: numColumns === num ? '#fff' : '#1f2937',
+                                fontWeight: '600',
+                              }}
+                            >
+                              {num} columns
+                            </Text>
+                          </TouchableOpacity>
+                        ))}
                       </View>
                     </View>
-                    {typeof numColumns !== 'undefined' && (
-                      <View style={{ width }}>
-                        <View style={styles.columnsRow}>
-                          {[2, 3, 4, 5].map((num) => (
-                            <TouchableOpacity
-                              key={num}
-                              onPress={() => setNumColumns(num)}
-                              style={[styles.chip, numColumns === num && styles.chipSelected]}
-                            >
-                              <Text
-                                style={{
-                                  color: numColumns === num ? '#fff' : '#1f2937',
-                                  fontWeight: '600',
-                                }}
-                              >
-                                {num} columns
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                      </View>
-                    )}
-                  </Animated.View>
-                </View>
+                  )}
+                </Animated.View>
+              </View>
             )}
 
+            {/* --- EXPLORE FILTER --- */}
             {filterContext === 'explore' && (
-                <View style={styles.content}>
-                  <View style={styles.tabBar}>
-                    <TouchableOpacity
-                      style={[styles.tabItem, activeTab === 'filter' && styles.activeTab]}
-                      onPress={() => handleTabChange('filter')}
-                    >
-                      <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
-                        Filter
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <Animated.View
-                    style={{
-                      flexDirection: 'row',
-                      width: width * 2,
-                      transform: [
-                        {
-                          translateX: tabSlideAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, -width],
-                          }),
-                        },
-                      ],
-                    }}
+              <View style={styles.content}>
+                <Text style={[styles.title, { color: isDark ? '#fff' : '#1f2937' }]}>Sort by</Text>
+                {['rating', 'followedCount', 'createdAt', 'updatedAt'].map((order) => (
+                  <TouchableOpacity
+                    key={order}
+                    onPress={() => updateFilter('orderBy', order)}
+                    style={styles.row}
                   >
-                    {/* <View style={{ width }}>
-                      <View style={styles.row}>
-                        <MSwitch value={onlyDownloaded} onValueChange={setOnlyDownloaded} />
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          Downloaded
-                        </Text>
-                      </View>
+                    <View
+                      style={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: 6,
+                        backgroundColor: filters.orderBy === order ? '#ec4899' : '#ccc',
+                      }}
+                    />
+                    <Text style={[styles.label, { marginLeft: 10, color: isDark ? '#fff' : '#1f2937' }]}>
+                      {order}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
 
-                      <View style={styles.row}>
-                        <MSwitch value={unread} onValueChange={setUnread} />
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          Unread
-                        </Text>
-                      </View>
-
-                      <View style={styles.row}>
-                        <MSwitch value={completed} onValueChange={setCompleted} />
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          Completed
-                        </Text>
-                      </View>
-
-                      <View style={styles.row}>
-                        <MSwitch value={started} onValueChange={setStarted} />
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          Started
-                        </Text>
-                      </View>
-                    </View> */}
-                  </Animated.View>
-                </View>
+                <Text style={[styles.title, { marginTop: 20, color: isDark ? '#fff' : '#1f2937' }]}>
+                  Direction
+                </Text>
+                {['asc', 'desc'].map((dir) => (
+                  <TouchableOpacity
+                    key={dir}
+                    onPress={() => updateFilter('direction', dir)}
+                    style={styles.row}
+                  >
+                    <View
+                      style={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: 6,
+                        backgroundColor: filters.direction === dir ? '#ec4899' : '#ccc',
+                      }}
+                    />
+                    <Text style={[styles.label, { marginLeft: 10, color: isDark ? '#fff' : '#1f2937' }]}>
+                      {dir === 'asc' ? 'Ascending' : 'Descending'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             )}
           </Animated.View>
         </Animated.View>
       </Modal>
     );
-  },
+  }
 );
 
 const styles = StyleSheet.create({
@@ -309,7 +279,6 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
     alignItems: 'center',
     marginVertical: 12,
   },
@@ -355,5 +324,4 @@ const styles = StyleSheet.create({
 });
 
 FilterModal.displayName = 'FilterModal';
-
 export default FilterModal;
