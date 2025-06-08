@@ -5,18 +5,24 @@ import { getCoverUrl } from '../components/MangaCarousel'; // reutiliza tu funci
 import Navbar from '../components/Navbar';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
+import { getMangaGenre, getPopularManga } from '../services/mangadexApi';
+import { Filters } from './ExploreScreen';
 
 const LIMIT = 20;
 
 export default function MangaListScreen() {
   const route = useRoute();
-  const { title, fetchFunction, data } = route.params as any;
+  const { title, data } = route.params as any;
 
   const [mangas, setMangas] = useState<any[]>([]);
   const [offset, setOffset] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [reloadFlag, setReloadFlag] = useState(false);
+  const [filters, setFilters] = useState<Filters>({
+    orderBy: 'rating',
+    direction: 'desc',
+  });
 
   const filterRef = useRef<Modalize>(null);
   
@@ -24,24 +30,31 @@ export default function MangaListScreen() {
   const openFilterModal = () => {
     filterRef.current?.open();
   };
-  const loadMore = async () => {
-    if (!fetchFunction || loading || !hasMore) return;
+  const loadMore = async (replace = false) => {
+    if (loading || !hasMore) return;
+
     setLoading(true);
     try {
-      const newData = await fetchFunction(LIMIT, offset, data);
-      const filtered = newData.filter((item: any) => !mangas.find((m) => m.id === item.id));
-      const updated = [...mangas, ...filtered];
+      const fetchFunction = title === 'popular' ? getPopularManga : getMangaGenre;
+      const currentOffset = replace ? 0 : offset;
+
+      const newData = await fetchFunction(LIMIT, currentOffset, filters, data ?? null);
+      const filtered = newData.filter((item: any) =>
+        replace ? true : !mangas.find((m) => m.id === item.id)
+      );
+
+      const updated = replace ? filtered : [...mangas, ...filtered];
       setMangas(updated);
-      setOffset((prev) => prev + LIMIT);
-      if (filtered.length < LIMIT) setHasMore(false);
+      setOffset((prev) => (replace ? LIMIT : prev + LIMIT));
+      setHasMore(filtered.length >= LIMIT);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadMore();
-  }, []);
+    loadMore(true);
+  }, [filters]);
 
   return (
     <View className='flex-1'>
@@ -73,11 +86,16 @@ export default function MangaListScreen() {
             </View>
         </Pressable>
         )}
-        onEndReached={loadMore}
+        onEndReached={() => loadMore()}
         onEndReachedThreshold={0.5}
         ListFooterComponent={loading ? <ActivityIndicator /> : null}
       />
-      <FilterModal ref={filterRef} filterContext={'mangaList'}/>
+      <FilterModal ref={filterRef} 
+          filterContext={'manga'} 
+          onFilterChange={(newFilters) => {
+          setFilters((prev) => ({ ...prev, ...newFilters }));
+          setReloadFlag((prev) => !prev);
+        }} />
 
     </View>
     </View>

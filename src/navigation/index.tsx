@@ -32,7 +32,7 @@ export default function Navigation() {
         options={{ title: 'Readding...', animation: 'fade'}}
       />
       <Stack.Screen name="SearchScreen" component={SearchScreen} options={{ animation: 'none'}}  />
-      <Stack.Screen name="MangaListScreen" component={MangaListScreen} options={{ title: 'Todos los mangas', animation: 'fade', animationDuration: 300 }} />
+      <Stack.Screen name="MangaListScreen" component={MangaListScreen} options={{ animation: 'fade', animationDuration: 300 }} />
       <Stack.Screen name="SettingScreen" component={SettingsScreen} options={{ animation: 'fade', animationDuration: 300, gestureEnabled: false}}  />
     </Stack.Navigator>
   );

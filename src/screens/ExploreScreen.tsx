@@ -7,13 +7,8 @@ import MainBar from '../components/MainBar';
 import { useRoute } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
-import { isMangaDownloaded } from '../utils/downloadManga';
 import { getMangaGenre, getPopularManga } from '../services/mangadexApi';
-type Filters = {
-  onlyDownloaded?: boolean;
-  unread?: boolean;
-  completed?: boolean;
-  started?: boolean;
+export type Filters = {
   orderBy?: 'rating' | 'followedCount' | 'createdAt' | 'updatedAt';
   direction?: 'asc' | 'desc';
 };
@@ -91,10 +86,10 @@ export default function ExploreScreen() {
 
       <FilterModal
         ref={filterRef}
-        filterContext="explore"
+        filterContext="manga"
         onFilterChange={(newFilters) => {
           setFilters((prev) => ({ ...prev, ...newFilters }));
-          setReloadFlag((prev) => !prev); // fuerza recarga
+          setReloadFlag((prev) => !prev);
         }}
       />
     </View>
@@ -103,28 +98,4 @@ export default function ExploreScreen() {
 
 function formatGenreName(name: string) {
   return name.toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase());
-}
-
-async function applyFilters(mangaList: any[], filters?: Filters) {
-  if (!filters) return mangaList;
-
-  let result = [...mangaList];
-
-  if (filters.onlyDownloaded) {
-    result = await filterByDownloaded(result);
-  }
-
-  // Otros filtros como unread, completed, started puedes agregarlos aquí si tienes los métodos
-  return result;
-}
-
-async function filterByDownloaded(mangas: any[]) {
-  const filtered = await Promise.all(
-    mangas.map(async (manga) => {
-      const totalChapters = manga?.attributes?.lastChapterNumberList ?? []; // asegúrate de tener esta info
-      const downloaded = await isMangaDownloaded(manga.id, totalChapters);
-      return downloaded ? manga : null;
-    })
-  );
-  return filtered.filter(Boolean);
 }

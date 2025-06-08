@@ -17,7 +17,7 @@ const { width, height } = Dimensions.get('window');
 interface FilterModalProps {
   numColumns?: number;
   setNumColumns?: React.Dispatch<React.SetStateAction<number>>;
-  filterContext: 'home' | 'explore' | 'mangaList';
+  filterContext: 'home' | 'manga';
   onFilterChange?: (filters: { [key: string]: any }) => void;
 }
 
@@ -192,7 +192,7 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
             )}
 
             {/* --- EXPLORE FILTER --- */}
-            {filterContext === 'explore' && (
+            {filterContext === 'manga' && (
               <View style={styles.content}>
                 <Text style={[styles.title, { color: isDark ? '#fff' : '#1f2937' }]}>Sort by</Text>
                 {['rating', 'followedCount', 'createdAt', 'updatedAt'].map((order) => (

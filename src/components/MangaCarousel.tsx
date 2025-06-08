@@ -23,10 +23,6 @@ export const getCoverUrl = (item: any) => {
 };
 
 type Filters = {
-  onlyDownloaded?: boolean;
-  unread?: boolean;
-  completed?: boolean;
-  started?: boolean;
   orderBy?: 'rating' | 'followedCount' | 'createdAt' | 'updatedAt';
   direction?: 'asc' | 'desc';
 };
@@ -122,16 +118,14 @@ function MangaCarousel({
   return (
     <View className="mb-6 min-h-[240px] dark:bg-gray-900">
       <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-xl font-bold dark:text-white">{title}</Text>
-        {fetchFunction && (
+        <Text className="text-xl font-bold dark:text-white">{title}</Text>     
           <Pressable
             onPress={() =>
-              navigation.navigate('MangaListScreen', { title, fetchFunction, data, filters })
+              navigation.navigate('MangaListScreen', { title, data, filters })
             }
           >
             <Ionicons name="arrow-forward" size={26} color="#ec4899" />
           </Pressable>
-        )}
       </View>
 
       <FlatList
