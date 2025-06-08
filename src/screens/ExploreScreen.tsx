@@ -7,6 +7,7 @@ import { GENRES } from '../utils/genres/genreConstants';
 import MainBar from '../components/MainBar';
 import { useRoute } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
+import FilterModal from '../components/FilterModal';
 
 type GenreItem = {
   title: string;
@@ -57,6 +58,7 @@ export default function ExploreScreen() {
       />
 
       <MainBar currentRouteName={route.name}/>
+      <FilterModal ref={filterRef} filterContext="explore"/>
     </View>
   );
 }

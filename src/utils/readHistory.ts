@@ -22,3 +22,13 @@ export const getReadChapters = async (): Promise<string[]> => {
   const raw = await SecureStore.getItemAsync(KEY);
   return raw ? JSON.parse(raw) : [];
 };
+
+export const getReadChaptersForManga = async (mangaId: string, allChapterIds: string[]): Promise<string[]> => {
+  try {
+    const readChapters = await getReadChapters();
+    return allChapterIds.filter((chapterId) => readChapters.includes(chapterId));
+  } catch (error) {
+    console.warn(`Error al obtener capítulos leídos para el manga ${mangaId}:`, error);
+    return [];
+  }
+};

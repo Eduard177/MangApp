@@ -17,175 +17,264 @@ const { width, height } = Dimensions.get('window');
 interface FilterModalProps {
   numColumns?: number;
   setNumColumns?: React.Dispatch<React.SetStateAction<number>>;
+  filterContext: 'home' | 'explore' | 'mangaList';
+  onFilterChange?: (filters: { [key: string]: boolean }) => void;
 }
 
-const FilterModal = forwardRef<Modalize, FilterModalProps>(({ numColumns, setNumColumns }, ref) => {
-  const [onlyDownloaded, setOnlyDownloaded] = useState(false);
-  const [dontReaded, setDontReaded] = useState(false);
-  const [completed, setCompleted] = useState(false);
-  const [started, setStarted] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<'filter' | 'appear'>('filter');
+const FilterModal = forwardRef<Modalize, FilterModalProps>(
+  ({ numColumns, setNumColumns, filterContext, onFilterChange}, ref) => {
+    const [filters, setFilters] = useState({
+      onlyDownloaded: false,
+      unread: false,
+      completed: false,
+      started: false,
+    });
+    const [visible, setVisible] = useState(false);
+    const [activeTab, setActiveTab] = useState<'filter' | 'appear'>('filter');
 
-  const { colorScheme } = useColorScheme();
-  const [slideAnim] = useState(new Animated.Value(height));
-  const [opacityAnim] = useState(new Animated.Value(0));
-  const [tabSlideAnim] = useState(new Animated.Value(0));
+    const { colorScheme } = useColorScheme();
+    const [slideAnim] = useState(new Animated.Value(height));
+    const [opacityAnim] = useState(new Animated.Value(0));
+    const [tabSlideAnim] = useState(new Animated.Value(0));
 
-  useImperativeHandle(ref, () => ({
-    open: () => {
-      setVisible(true);
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    },
-    close: () => {
-      Animated.parallel([
-        Animated.timing(slideAnim, {
-          toValue: height,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 0,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-      ]).start(() => {
-        setVisible(false);
-      });
-    },
-  }));
+    useImperativeHandle(ref, () => ({
+      open: () => {
+        setVisible(true);
+        Animated.parallel([
+          Animated.timing(slideAnim, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      },
+      close: () => {
+        Animated.parallel([
+          Animated.timing(slideAnim, {
+            toValue: height,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 0,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          setVisible(false);
+        });
+      },
+    }));
 
-  const isDark = colorScheme === 'dark';
+    const isDark = colorScheme === 'dark';
 
-  const handleTabChange = (tab: 'filter' | 'appear') => {
-    setActiveTab(tab);
-    Animated.timing(tabSlideAnim, {
-      toValue: tab === 'filter' ? 0 : 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
+    const handleTabChange = (tab: 'filter' | 'appear') => {
+      setActiveTab(tab);
+      Animated.timing(tabSlideAnim, {
+        toValue: tab === 'filter' ? 0 : 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    };
 
-  const handleClose = () => {
-    ref.current?.close();
-  };
+    const handleClose = () => {
+      ref.current?.close();
+    };
 
-  return (
-    <Modal
-      animationType="none"
-      transparent={true}
-      visible={visible}
-      onRequestClose={handleClose}
-      statusBarTranslucent={true}
-    >
-      <Animated.View style={[styles.modalOverlay, { opacity: opacityAnim }]}>
-        <TouchableOpacity
-          style={styles.modalBackground}
-          activeOpacity={1}
-          onPress={handleClose}
-        />
-        <Animated.View
-          style={[
-            styles.modalContainer,
-            {
-              backgroundColor: isDark ? '#1f2937' : '#fff',
-              transform: [{ translateY: slideAnim }],
-            },
-          ]}
-        >
-          <View style={[styles.handle, { backgroundColor: isDark ? '#fff' : '#ccc' }]} />
+    const updateFilter = (key: string, value: boolean) => {
+      const updated = { ...filters, [key]: value };
+      setFilters(updated);
+      onFilterChange?.(updated);
+    };
 
-          <View style={styles.content}>
-            <View style={styles.tabBar}>
-              <TouchableOpacity
-                style={[styles.tabItem, activeTab === 'filter' && styles.activeTab]}
-                onPress={() => handleTabChange('filter')}
-              >
-                <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>Filter</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.tabItem, activeTab === 'appear' && styles.activeTab]}
-                onPress={() => handleTabChange('appear')}
-              >
-                <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>Appear</Text>
-              </TouchableOpacity>
-            </View>
+    return (
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={visible}
+        onRequestClose={handleClose}
+        statusBarTranslucent={true}
+      >
+        <Animated.View style={[styles.modalOverlay, { opacity: opacityAnim }]}>
+          <TouchableOpacity
+            style={styles.modalBackground}
+            activeOpacity={1}
+            onPress={handleClose}
+          />
+          <Animated.View
+            style={[
+              styles.modalContainer,
+              {
+                backgroundColor: isDark ? '#1f2937' : '#fff',
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <View style={[styles.handle, { backgroundColor: isDark ? '#fff' : '#ccc' }]} />
 
-            <Animated.View
-              style={{
-                flexDirection: 'row',
-                width: width * 2,
-                transform: [
-                  {
-                    translateX: tabSlideAnim.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [0, -width],
-                    }),
-                  },
-                ],
-              }}
-            >
-              <View style={{ width }}>
-                <View style={styles.row}>
-                  <MSwitch value={onlyDownloaded} onValueChange={setOnlyDownloaded} />
-                  <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>Descargados</Text>
-                </View>
-
-                <View style={styles.row}>
-                  <MSwitch value={dontReaded} onValueChange={setDontReaded} />
-                  <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>Sin Leer</Text>
-                </View>
-
-                <View style={styles.row}>
-                  <MSwitch value={completed} onValueChange={setCompleted} />
-                  <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>Completados</Text>
-                </View>
-
-                <View style={styles.row}>
-                  <MSwitch value={started} onValueChange={setStarted} />
-                  <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>Empezados</Text>
-                </View>
-              </View>
-              {typeof numColumns !== 'undefined' && (
-                  <View style={{ width }}>
-                    <View style={styles.columnsRow}>
-                      {[2, 3, 4, 5].map((num) => (
-                        <TouchableOpacity
-                          key={num}
-                          onPress={() => setNumColumns(num)}
-                          style={[styles.chip, numColumns === num && styles.chipSelected]}
-                        >
-                          <Text
-                            style={{
-                              color: numColumns === num ? '#fff' : '#1f2937',
-                              fontWeight: '600',
-                            }}
-                          >
-                            {num} columnas
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </View>
+            {filterContext === 'home' && (
+                <View style={styles.content}>
+                  <View style={styles.tabBar}>
+                    <TouchableOpacity
+                      style={[styles.tabItem, activeTab === 'filter' && styles.activeTab]}
+                      onPress={() => handleTabChange('filter')}
+                    >
+                      <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
+                        Filter
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.tabItem, activeTab === 'appear' && styles.activeTab]}
+                      onPress={() => handleTabChange('appear')}
+                    >
+                      <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
+                        Appear
+                      </Text>
+                    </TouchableOpacity>
                   </View>
-              )}
-            </Animated.View>
-          </View>
+
+                  <Animated.View
+                    style={{
+                      flexDirection: 'row',
+                      width: width * 2,
+                      transform: [
+                        {
+                          translateX: tabSlideAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -width],
+                          }),
+                        },
+                      ],
+                    }}
+                  >
+                    <View style={{ width }}>
+                      <View style={styles.row}>
+                        <MSwitch value={filters.onlyDownloaded} onValueChange={(val) => updateFilter('onlyDownloaded', val)} />
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          Downloaded
+                        </Text>
+                      </View>
+
+                      <View style={styles.row}>
+                        <MSwitch value={filters.unread} onValueChange={(val) => updateFilter('unread', val)} />
+
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          Unread
+                        </Text>
+                      </View>
+
+                      <View style={styles.row}>
+                        <MSwitch value={filters.completed} onValueChange={(val) => updateFilter('completed', val)} />
+
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          Completed
+                        </Text>
+                      </View>
+
+                      <View style={styles.row}>
+                        <MSwitch value={filters.started} onValueChange={(val) => updateFilter('started', val)} />
+
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          Started
+                        </Text>
+                      </View>
+                    </View>
+                    {typeof numColumns !== 'undefined' && (
+                      <View style={{ width }}>
+                        <View style={styles.columnsRow}>
+                          {[2, 3, 4, 5].map((num) => (
+                            <TouchableOpacity
+                              key={num}
+                              onPress={() => setNumColumns(num)}
+                              style={[styles.chip, numColumns === num && styles.chipSelected]}
+                            >
+                              <Text
+                                style={{
+                                  color: numColumns === num ? '#fff' : '#1f2937',
+                                  fontWeight: '600',
+                                }}
+                              >
+                                {num} columns
+                              </Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </View>
+                    )}
+                  </Animated.View>
+                </View>
+            )}
+
+            {filterContext === 'explore' && (
+                <View style={styles.content}>
+                  <View style={styles.tabBar}>
+                    <TouchableOpacity
+                      style={[styles.tabItem, activeTab === 'filter' && styles.activeTab]}
+                      onPress={() => handleTabChange('filter')}
+                    >
+                      <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
+                        Filter
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  <Animated.View
+                    style={{
+                      flexDirection: 'row',
+                      width: width * 2,
+                      transform: [
+                        {
+                          translateX: tabSlideAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0, -width],
+                          }),
+                        },
+                      ],
+                    }}
+                  >
+                    {/* <View style={{ width }}>
+                      <View style={styles.row}>
+                        <MSwitch value={onlyDownloaded} onValueChange={setOnlyDownloaded} />
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          Downloaded
+                        </Text>
+                      </View>
+
+                      <View style={styles.row}>
+                        <MSwitch value={unread} onValueChange={setUnread} />
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          Unread
+                        </Text>
+                      </View>
+
+                      <View style={styles.row}>
+                        <MSwitch value={completed} onValueChange={setCompleted} />
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          Completed
+                        </Text>
+                      </View>
+
+                      <View style={styles.row}>
+                        <MSwitch value={started} onValueChange={setStarted} />
+                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                          Started
+                        </Text>
+                      </View>
+                    </View> */}
+                  </Animated.View>
+                </View>
+            )}
+          </Animated.View>
         </Animated.View>
-      </Animated.View>
-    </Modal>
-  );
-});
+      </Modal>
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   modalOverlay: {

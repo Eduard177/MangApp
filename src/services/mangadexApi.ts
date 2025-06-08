@@ -27,21 +27,19 @@ export const searchManga = async (
   return response.data;
 };
 
-export const getMangaChapters = async (
+export const getMangaAllChapters = async (
   mangaId: string,
-  limit: number = 10,
 ) => {
   const lang = await getApiLanguage();
   const response = await api.get(`/manga/${mangaId}/feed`, {
     params: {
       translatedLanguage: [lang],
-      limit,
       order: {
         chapter: 'asc',
       },
     },
   });
-  return response.data;
+  return response.data?.data;
 };
 
 export const getChapterImages = async (chapterId: string) => {

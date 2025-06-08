@@ -77,7 +77,7 @@ export default function MangaListScreen() {
         onEndReachedThreshold={0.5}
         ListFooterComponent={loading ? <ActivityIndicator /> : null}
       />
-      <FilterModal ref={filterRef}/>
+      <FilterModal ref={filterRef} filterContext={'mangaList'}/>
 
     </View>
     </View>
