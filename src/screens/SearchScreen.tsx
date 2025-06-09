@@ -26,7 +26,7 @@ export default function SearchScreen({ navigation }: any) {
       const data = await searchManga(newQuery, LIMIT, 0);
       setResults(data.data ?? []);
       setOffset(LIMIT);
-      setHasMore(data.length === LIMIT);
+      setHasMore((data?.data?.length ?? 0) === LIMIT);
     } catch (e) {
       console.error('Error during search', e);
     } finally {
@@ -39,9 +39,9 @@ export default function SearchScreen({ navigation }: any) {
     setLoading(true);
     try {
       const data = await searchManga(query, LIMIT, offset);
-      setResults((prev) => [...prev, ...data]);
+      setResults((prev) => [...prev, ...(data?.data ?? [])]);
       setOffset((prev) => prev + LIMIT);
-      setHasMore(data.length === LIMIT);
+      setHasMore((data?.data?.length ?? 0) === LIMIT);
     } catch (e) {
       console.error('Error loading more', e);
     } finally {
@@ -66,31 +66,6 @@ export default function SearchScreen({ navigation }: any) {
       ? `https://uploads.mangadex.org/covers/${manga.id}/${cover.attributes.fileName}.256.jpg`
       : null;
   };
-
-  let listFooter = null;
-  if (results.length > 0) {
-    if (loading) {
-      listFooter = (
-        <View className="my-4 items-center">
-          <ActivityIndicator size="small" />
-        </View>
-      );
-    } else if (hasMore) {
-      listFooter = (
-        <View className="my-4 items-center">
-          <Pressable onPress={loadMore} className="bg-blue-600 px-4 py-2 rounded">
-            <Text className="text-white font-semibold">Ver más resultados</Text>
-          </Pressable>
-        </View>
-      );
-    } else {
-      listFooter = (
-        <View className="my-4 items-center">
-          <Text className="text-gray-500 mt-2 dark:text-white">No hay más resultados</Text>
-        </View>
-      );
-    }
-  }
 
   return (
     <View className="flex-1 pt-12 px-4 bg-white dark:bg-gray-700">
@@ -123,7 +98,17 @@ export default function SearchScreen({ navigation }: any) {
               </Text>
             </Pressable>
           )}
-          ListFooterComponent={listFooter}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            loading ? (
+              <ActivityIndicator className="my-4" />
+            ) : !hasMore && results.length > 0 ? (
+              <Text className="text-center my-4 text-gray-400 dark:text-white">
+                No more results
+              </Text>
+            ) : null
+          }
         />
       )}
     </View>
