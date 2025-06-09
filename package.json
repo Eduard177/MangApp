@@ -41,7 +41,8 @@
     "react-native-web": "^0.20.0",
     "react-native-zoomable-view": "^0.3.1",
     "tailwindcss": "3.3.2",
-    "zustand": "^5.0.4"
+    "zustand": "^5.0.4",
+    "expo-image": "~2.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
