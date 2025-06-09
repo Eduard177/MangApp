@@ -191,7 +191,6 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
               </View>
             )}
 
-            {/* --- EXPLORE FILTER --- */}
             {filterContext === 'manga' && (
               <View style={styles.content}>
                 <Text style={[styles.title, { color: isDark ? '#fff' : '#1f2937' }]}>Sort by</Text>

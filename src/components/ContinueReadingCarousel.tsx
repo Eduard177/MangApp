@@ -1,9 +1,8 @@
 import { View, Text, FlatList, Image, Pressable } from 'react-native';
-import { useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { clearContinueReading, getContinueReading } from '../services/storage';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
-
 
 export default function ContinueReadingCarousel() {
   const [history, setHistory] = useState([]);
@@ -22,6 +21,8 @@ export default function ContinueReadingCarousel() {
     const fileName = item?.cover;
     return fileName ? `https://uploads.mangadex.org/covers/${item.mangaId}/${item.cover}.256.jpg` : null;
   };
+
+  if (!history.length) return null;
 
   return (
     <View className="mb-6">
@@ -52,7 +53,7 @@ export default function ContinueReadingCarousel() {
           </Pressable>
         )}
       />
-      <Pressable onPress={clearContinueReading} className="bg-red-500 px-4 py-2 rounded">
+      <Pressable onPress={clearContinueReading} className="bg-red-500 px-4 py-2 rounded mt-2">
         <Text className="text-white text-center font-semibold">Borrar historial</Text>
       </Pressable>
     </View>
