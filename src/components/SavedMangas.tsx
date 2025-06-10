@@ -6,6 +6,7 @@ import { isMangaDownloaded } from '../utils/downloadManga';
 import { getReadChaptersForManga } from '../utils/readHistory';
 import { getMangaAllChapters } from '../services/mangadexApi';
 import { getCoverUrl } from './MangaCarousel';
+import cloneDeep from 'lodash.clonedeep';
 
 interface Props {
   numColumns?: number;
@@ -86,7 +87,7 @@ export default function SavedMangasGrid({ numColumns = 3, filters = {} }: Readon
 
   const renderItem = ({ item }: any) => (
     <Pressable
-      onPress={() => navigation.navigate('MangaDetails', { manga: item.manga })}
+      onPress={() => navigation.navigate('MangaDetails', { manga: JSON.parse(JSON.stringify(item.manga)) })}
       className="mb-4"
       style={{ width: itemWidth, marginHorizontal: 4 }}
     >

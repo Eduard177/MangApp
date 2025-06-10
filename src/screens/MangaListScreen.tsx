@@ -7,6 +7,7 @@ import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import { getMangaGenre, getPopularManga } from '../services/mangadexApi';
 import { Filters } from './ExploreScreen';
+import cloneDeep from 'lodash.clonedeep';
 
 const LIMIT = 20;
 
@@ -69,7 +70,7 @@ export default function MangaListScreen() {
         keyExtractor={(item, index) => `${item.id}-${index}`}
         renderItem={({ item }) => (
         <Pressable
-            onPress={() => navigation.navigate('MangaDetails', { manga: item })}
+            onPress={() => navigation.navigate('MangaDetails', { manga: JSON.parse(JSON.stringify(item))  })}
             className="mb-4 flex-row"
         >
             <Image

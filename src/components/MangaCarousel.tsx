@@ -10,6 +10,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import cloneDeep from 'lodash.clonedeep';
 
 const LIMIT = 8;
 const MAX_TOTAL = 20;
@@ -134,7 +135,7 @@ function MangaCarousel({
         keyExtractor={(item, index) => `${title}-${item.id}-${index}`}
         renderItem={({ item }) => (
           <Pressable
-            onPress={() => navigation.navigate('MangaDetails', { manga: item })}
+            onPress={() => navigation.navigate('MangaDetails', { manga: JSON.parse(JSON.stringify(item))  })}
             className="mr-4"
           >
             <Image

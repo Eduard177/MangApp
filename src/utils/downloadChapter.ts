@@ -1,19 +1,30 @@
 import * as FileSystem from 'expo-file-system';
 import { featchGetChapterPages } from '../services/mangaService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const CHAPTER_CACHE_KEY = 'offline_chapters';
 
 export const downloadChapter = async (chapterId: string, mangaId: string) => {
   try {
     const res = await featchGetChapterPages(chapterId);
     const { baseUrl, chapter } = res;
 
-    const dir = `${FileSystem.documentDirectory}/${mangaId}/${chapterId}`;
+    const dir = `${FileSystem.documentDirectory}${mangaId}/${chapterId}`;
     await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+
+    const imageUris: string[] = [];
 
     for (const fileName of chapter.data) {
       const url = `${baseUrl}/data/${chapter.hash}/${fileName}`;
       const localPath = `${dir}/${fileName}`;
-      await FileSystem.downloadAsync(url, localPath);
+      const downloaded = await FileSystem.downloadAsync(url, localPath);
+      imageUris.push(downloaded.uri);
     }
+
+    const existing = await AsyncStorage.getItem(CHAPTER_CACHE_KEY);
+    const parsed = existing ? JSON.parse(existing) : {};
+    parsed[chapterId] = imageUris;
+    await AsyncStorage.setItem(CHAPTER_CACHE_KEY, JSON.stringify(parsed));
 
     return true;
   } catch (error) {
@@ -21,6 +32,7 @@ export const downloadChapter = async (chapterId: string, mangaId: string) => {
     return false;
   }
 };
+
 
 export const isChapterDownloaded = async (
   mangaId: string,
@@ -55,4 +67,10 @@ export const deleteChapter = async (mangaId: string, chapterId: string) => {
   } else {
     console.log('No existe la carpeta del manga:', dirPath);
   }
+};
+
+export const getOfflineChapter = async (chapterId: string): Promise<string[] | null> => {
+  const raw = await AsyncStorage.getItem(CHAPTER_CACHE_KEY);
+  const data = raw ? JSON.parse(raw) : {};
+  return data[chapterId] ?? null;
 };

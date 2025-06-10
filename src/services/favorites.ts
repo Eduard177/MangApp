@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import cloneDeep from 'lodash.clonedeep';
 const FAVORITES_KEY = 'saved_manga';
 
 export const getSavedMangas = async () => {
@@ -26,7 +26,7 @@ export const saveManga = async (manga: any) => {
     const cover = coverArt?.attributes?.fileName ?? '';
 
     const formatted = {
-      manga,
+      manga: JSON.parse(JSON.stringify(manga)),
       title: manga?.attributes?.title?.en ?? 'Untitled',
       cover,
     };

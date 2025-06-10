@@ -86,7 +86,7 @@ export default function SearchScreen({ navigation }: any) {
           keyExtractor={(item, index) => item.id + index}
           renderItem={({ item }) => (
             <Pressable
-              onPress={() => navigation.navigate('MangaDetails', { manga: item })}
+              onPress={() => navigation.navigate('MangaDetails', { manga: JSON.parse(JSON.stringify(item))  })}
               className="flex-row mb-4 space-x-4 items-center"
             >
               <Image

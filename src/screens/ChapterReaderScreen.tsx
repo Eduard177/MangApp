@@ -19,7 +19,6 @@ import {
 } from '../services/mangadexApi';
 import { saveMangaToContinueReading } from '../services/storage';
 import ChapterReaderControls from '../components/ChapterReaderControls';
-import { getOfflineChapter } from '../utils/offlineUtils';
 import { markChapterAsRead } from '../utils/readHistory';
 import { useIncognito } from '../context/incognito-context';
 import { Image } from 'expo-image';
@@ -34,6 +33,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { featchGetChapterPages } from '../services/mangaService';
+import { getOfflineChapter } from '../utils/downloadChapter';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const MIN_SCALE = 1;
@@ -272,7 +272,7 @@ export default function ChapterReader() {
           currentPage={currentPage + 1}
           totalPages={chapterImages.length}
           manga={manga}
-          onClose={() => setShowControls(false)}
+          onClose={() => navigation.goBack()}
           onNextChapter={() => {
             if (currentChapterIndex < chapters.length - 1) goToChapter(chapters[currentChapterIndex + 1].id);
           }}

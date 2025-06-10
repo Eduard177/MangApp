@@ -4,8 +4,8 @@
   "main": "main.tsx",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write ."
@@ -20,8 +20,10 @@
     "axios": "^1.9.0",
     "expo": "~53.0.9",
     "expo-file-system": "~18.1.10",
+    "expo-image": "~2.2.0",
     "expo-secure-store": "^14.2.3",
     "expo-status-bar": "~2.2.3",
+    "lodash.clonedeep": "^4.5.0",
     "nativewind": "^2.0.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -41,11 +43,11 @@
     "react-native-web": "^0.20.0",
     "react-native-zoomable-view": "^0.3.1",
     "tailwindcss": "3.3.2",
-    "zustand": "^5.0.4",
-    "expo-image": "~2.2.0"
+    "zustand": "^5.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@types/lodash.clonedeep": "^4.5.9",
     "@types/react": "~19.0.10",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",

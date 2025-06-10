@@ -12,13 +12,13 @@ export default function App() {
   useEffect(() => {
     useDownloadedMangas.getState().loadDownloaded();
   }, []);
-    const colorScheme = useColorScheme();
-  
+    const {colorScheme} = useColorScheme();
+    const isDark = colorScheme === 'dark';
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <IncognitoProvider>
         <NavigationContainer>
-          <StatusBar style={colorScheme.colorScheme === 'dark' ? 'light' : 'dark'} translucent={false} backgroundColor="#ffffff" />
+          <StatusBar style={isDark ? 'light' : 'dark'} translucent={false} backgroundColor="#ffffff" />
           <Navigation />
         </NavigationContainer>
         <Toast />

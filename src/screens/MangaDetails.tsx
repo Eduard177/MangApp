@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { RouteProp, useNavigation, useRoute, NavigationProp } from '@react-navigation/native';
-import { TabView, TabBar } from 'react-native-tab-view';
 import { fetchAllChapters, getAuthorManga, getChaptersByMangaId } from '../services/mangadexApi';
 import ChaptersTab from '../components/ChaptersTab';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,10 +19,8 @@ import { deleteManga, downloadManga, isMangaDownloaded } from '../utils/download
 import DownloadFullIcon from '../assets/components/DownloadFullIcon';
 import { useColorScheme } from 'nativewind';
 import { queueDownload } from '../services/backgroundDownloadMangaer';
-import { downloadChapter } from '../utils/downloadChapter';
 import Toast from 'react-native-toast-message';
 
-const initialLayout = { width: Dimensions.get('window').width };
 const screenHeight = Dimensions.get('window').height;
 
 type RootStackParamList = {
@@ -33,58 +30,55 @@ type RootStackParamList = {
 
 export default function MangaDetailScreen() {
   const route = useRoute<RouteProp<RootStackParamList, 'MangaDetails'>>();
-  const { manga } = route.params;
+  const rawManga = route.params.manga;
+  const manga = useMemo(() => JSON.parse(JSON.stringify(rawManga)), [rawManga]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  const [activeTab, setActiveTab] = useState<'general' | 'chapters'>('general');
   const [chapters, setChapters] = useState<any[]>([]);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [index, setIndex] = useState(0);
   const [authorName, setAuthorName] = useState<string | null>(null);
   const [reverseOrder, setReverseOrder] = useState(false);
-
-  const [routes] = useState([
-    { key: 'general', title: 'General' },
-    { key: 'chapters', title: 'Chapters' },
-  ]);
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const [lang, setLang] = useState('en');
   const [isSaved, setIsSaved] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const colorScheme = useColorScheme();
-
-  useEffect(() => {
-    const checkSaved = async () => {
-      const result = await isMangaSaved(manga.id);
-      setIsSaved(result);
-    };
-    checkSaved();
-  }, []);
-
-  useEffect(() => {
-    const load = async () => {
-      const l = await getApiLanguage();
-      setLang(l);
-    };
-    load();
-  }, []);
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
-      toValue: index === 1 ? 1 : 0,
+      toValue: activeTab === 'chapters' ? 1 : 0,
       duration: 300,
       useNativeDriver: true,
     }).start();
-  }, [index]);
+  }, [activeTab]);
+
+  useEffect(() => {
+    (async () => {
+      const l = await getApiLanguage();
+      setLang(l);
+      const result = await isMangaSaved(manga.id);
+      setIsSaved(result);
+    })();
+  }, []);
+
+  useEffect(() => {
+    const checkDownload = async () => {
+      const totalChapterIds = chapters?.map((c) => c.id);
+      const result = await isMangaDownloaded(manga.id, totalChapterIds);
+      setIsDownloaded(result);
+    };
+    checkDownload();
+  }, [manga, chapters, refreshKey]);
 
   const handleDownloadAllChapters = async () => {
     setIsDownloadingAll(true);
-    const mangaId = manga?.id
-    const allChapters = await fetchAllChapters(mangaId);
+    const allChapters = await fetchAllChapters(manga.id);
 
     Toast.show({
       type: 'info',
@@ -105,6 +99,7 @@ export default function MangaDetailScreen() {
         });
       });
     });
+
     setIsDownloadingAll(false);
   };
 
@@ -113,7 +108,7 @@ export default function MangaDetailScreen() {
     setLoading(true);
     try {
       const response = await getChaptersByMangaId(manga.id, 20, offset, reverseOrder ? 'desc' : 'asc');
-      let newChapters = response.data ?? [];
+      const newChapters = response.data ?? [];
       setChapters((prev) => [...prev, ...newChapters]);
       setOffset((prev) => prev + 20);
       setHasMore(newChapters.length === 20);
@@ -129,21 +124,6 @@ export default function MangaDetailScreen() {
     setOffset(0);
     setChapters([]);
   };
-
-  useEffect(() => {
-  const checkDownload = async () => {
-    const totalChapterIds = chapters?.map((c) => c.id);
-    const result = await isMangaDownloaded(manga.id, totalChapterIds);
-    setIsDownloaded(result);
-  };
-
-    checkDownload();
-  }, [manga, chapters, refreshKey]);
-
-  const opacity = fadeAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
 
   const getAuthorName = async () => {
     try {
@@ -176,27 +156,8 @@ export default function MangaDetailScreen() {
     </ScrollView>
   );
 
-  const renderScene = ({ route }: any) => {
-    switch (route.key) {
-      case 'general':
-        return <GeneralRoute />;
-      case 'chapters':
-        return (
-          <ChaptersTab
-            chapters={chapters}
-            loading={loading}
-            fetchChapters={fetchChapters}
-            mangaId={manga.id}
-            navigation={navigation}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
-    <View className="flex-1 bg-white dark:bg-gray-800 ">
+    <View className="flex-1 bg-white dark:bg-gray-800">
       <View className="relative">
         <Image
           source={{
@@ -205,151 +166,130 @@ export default function MangaDetailScreen() {
           style={{ width: '100%', height: screenHeight * 0.45 }}
           resizeMode="cover"
         />
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          }}
-        >
-        <View className="flex-row justify-between">
-          <Pressable onPress={() => navigation.goBack()} className="flex-1 justify-between items-start p-10 px-5">
-            <Ionicons name="arrow-back" size={30} color="white" />
-          </Pressable>
-
-          <Pressable onPress={async () => {
-              if (isDownloadingAll) return;
-
-              if (isDownloaded) {
-                await deleteManga(manga.id);
-                setRefreshKey((prev) => prev + 1);
-                setIsDownloadingAll(false);
-              } else {
-                setIsDownloadingAll(true);
-                await handleDownloadAllChapters()
-                setRefreshKey((prev) => prev + 1);
-                setIsDownloaded(true);
-                setIsDownloadingAll(false);
-              }
-            }}
-          disabled={isDownloadingAll} 
-          className="flex-1 justify-between items-end p-10 px-5" 
-          style={{
-            opacity: isDownloadingAll ? 0.6 : 1,
-            pointerEvents: isDownloadingAll ? 'none' : 'auto',
-          }}>
-            {isDownloadingAll ? (
+        <View style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}>
+          <View className="flex-row justify-between">
+            <Pressable onPress={() => navigation.goBack()} className="flex-1 justify-between items-start p-10 px-5">
+              <Ionicons name="arrow-back" size={30} color="white" />
+            </Pressable>
+            <Pressable
+              onPress={async () => {
+                if (isDownloadingAll) return;
+                if (isDownloaded) {
+                  await deleteManga(manga.id);
+                  setRefreshKey((prev) => prev + 1);
+                  setIsDownloadingAll(false);
+                } else {
+                  setIsDownloadingAll(true);
+                  await handleDownloadAllChapters();
+                  setRefreshKey((prev) => prev + 1);
+                  setIsDownloaded(true);
+                  setIsDownloadingAll(false);
+                }
+              }}
+              disabled={isDownloadingAll}
+              className="flex-1 justify-between items-end p-10 px-5"
+              style={{
+                opacity: isDownloadingAll ? 0.6 : 1,
+                pointerEvents: isDownloadingAll ? 'none' : 'auto',
+              }}
+            >
+              {isDownloadingAll ? (
                 <ActivityIndicator size="small" color="#FF3E91" />
               ) : (
                 <DownloadFullIcon downloaded={isDownloaded} />
               )}
-          </Pressable>
+            </Pressable>
           </View>
         </View>
 
-        {(() => {
-            let statusBgColor = '', statusTextColor = '', statusLabel = '';
-            switch (manga?.attributes?.status) {
-              case 'completed':
-                statusBgColor = 'bg-green-500';
-                statusTextColor = 'text-white';
-                statusLabel = 'Completed';
-                break;
-              case 'ongoing':
-                statusBgColor = 'bg-pink-500';
-                statusTextColor = 'text-white';
-                statusLabel = 'On Going';
-                break;
-              case 'hiatus':
-                statusBgColor = 'bg-yellow-400';
-                statusTextColor = 'text-black';
-                statusLabel = 'Hiatus';
-                break;
-              case 'cancelled':
-                statusBgColor = 'bg-red-500';
-                statusTextColor = 'text-white';
-                statusLabel = 'Cancelled';
-                break;
-              default:
-                statusBgColor = 'bg-gray-500';
-                statusTextColor = 'text-white';
-                statusLabel = manga?.attributes?.status ?? 'Desconocido';
+        <View className="absolute bottom-6 left-4">
+          {(() => {
+            let statusClass = 'bg-gray-500';
+            if (manga.attributes.status === 'completed') {
+              statusClass = 'bg-green-500';
+            } else if (manga.attributes.status === 'ongoing') {
+              statusClass = 'bg-pink-500';
+            } else if (manga.attributes.status === 'hiatus') {
+              statusClass = 'bg-yellow-400';
+            } else if (manga.attributes.status === 'cancelled') {
+              statusClass = 'bg-red-500';
             }
-          return (
-            <View className="absolute bottom-6 left-4">
-              <View className={`self-start rounded-full px-3 py-1 ${statusBgColor}`}>
-                <Text className={`font-bold text-sm ${statusTextColor}`}>
-                  {statusLabel}
+            return (
+              <View className={`self-start rounded-full px-3 py-1 ${statusClass}`}>
+                <Text className="font-bold text-sm text-white">
+                  {manga.attributes.status ?? 'Unknown'}
                 </Text>
               </View>
-              <Text className="text-white text-2xl font-bold">
-                {manga.attributes.title.en ?? manga.attributes.altTitles?.find((t) => t.en)?.en}
-              </Text>
-              {manga.relationships?.find((rel) => rel.type === 'author') && (
-                <Text className="text-white opacity-80 text-sm italic">
-                  By: {authorName ?? 'Unknown'}
-                </Text>
-              )}
-            </View>
-          );
-        })()}
+            );
+          })()}
+          <Text className="text-white text-2xl font-bold">
+            {manga.attributes.title.en ?? manga.attributes.altTitles?.find((t) => t.en)?.en}
+          </Text>
+          {authorName && (
+            <Text className="text-white opacity-80 text-sm italic">
+              By: {authorName}
+            </Text>
+          )}
+        </View>
       </View>
 
-      <TabView
-        navigationState={{ index, routes }}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={initialLayout}
-        lazy
-        swipeEnabled={true}
-        renderTabBar={(props) => (
-          <View
-            className='flex flex-row items-center justify-between bg-white border-b border-b-[0.5px] border-b-[#eee] px-2.5 dark:bg-gray-800'
+      <View className="flex-row border-b border-b-[#eee] px-2.5 bg-white dark:bg-gray-800">
+        {['general', 'chapters'].map((tabKey) => (
+          <Pressable
+            key={tabKey}
+            onPress={() => setActiveTab(tabKey as 'general' | 'chapters')}
+            style={{
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              borderBottomWidth: activeTab === tabKey ? 3 : 0,
+              borderBottomColor: '#FF3E91',
+            }}
           >
-            <TabBar
-              {...props}
-              style={{
-                backgroundColor: colorScheme.colorScheme === 'dark' ? '#1f2937' : '#fff',
-                elevation: 0,
-                flex: 1,
-              }}
-              indicatorStyle={{
-                backgroundColor: '#FF3E91',
-                height: 3,
-                borderRadius: 4,
-              }}
-              activeColor={colorScheme.colorScheme === 'dark'? '#fff': '#1f2937'}
-              inactiveColor="#999"
-              pressColor="#f0f0f0"
-              tabStyle={{ width: 'auto', paddingHorizontal: 16 }}
-              scrollEnabled={false}
-            />
+            <Text style={{
+              color: activeTab === tabKey ? (isDark ? '#fff' : '#1f2937') : '#999',
+              fontWeight: activeTab === tabKey ? 'bold' : 'normal',
+            }}>
+              {tabKey === 'general' ? 'General' : 'Chapters'}
+            </Text>
+          </Pressable>
+        ))}
 
-            <View className="flex flex-row items-center gap-3 dark:bg-gray-800">
-              <Animated.View style={{ opacity }}>
-                {index === 1 && (
-                  <Pressable onPress={toggleOrder}>
-                    <Ionicons name="swap-vertical" size={20} color={reverseOrder ? '#FF3E91' : 'gray'}  />
-                  </Pressable>
-                )}
-              </Animated.View>
-              <Pressable onPress={async () => {
-                  if (isSaved) {
-                    await removeManga(manga.id);
-                  } else {
-                    await saveManga(manga);
-                  }
-                  setIsSaved(!isSaved);
-                }}>
-                <Ionicons name="bookmark" size={20} color={isSaved ? '#FF3E91' : 'gray'} />
+        <View className="flex flex-row items-center gap-3 ml-auto">
+          <Animated.View style={{ opacity: fadeAnim }}>
+            {activeTab === 'chapters' && (
+              <Pressable onPress={toggleOrder}>
+                <Ionicons name="swap-vertical" size={20} color={reverseOrder ? '#FF3E91' : 'gray'} />
               </Pressable>
-            </View>
-          </View>
-        )}
-      />
+            )}
+          </Animated.View>
+          <Pressable onPress={async () => {
+            if (isSaved) {
+              await removeManga(manga.id);
+            } else {
+              await saveManga(manga);
+            }
+            setIsSaved(!isSaved);
+          }}>
+            <Ionicons name="bookmark" size={20} color={isSaved ? '#FF3E91' : 'gray'} />
+          </Pressable>
+        </View>
+      </View>
+
+      {activeTab === 'general' ? (
+        <GeneralRoute />
+      ) : (
+        <ChaptersTab
+          chapters={chapters}
+          loading={loading}
+          fetchChapters={fetchChapters}
+          mangaId={manga.id}
+          navigation={navigation}
+        />
+      )}
 
       <Pressable className="bg-pink-500 mx-6 my-4 py-3 rounded-full">
         <Text className="text-white text-center font-bold">Seguir Leyendo</Text>
