@@ -70,7 +70,7 @@ export default function MangaListScreen() {
         keyExtractor={(item, index) => `${item.id}-${index}`}
         renderItem={({ item }) => (
         <Pressable
-            onPress={() => navigation.navigate('MangaDetails', { manga: JSON.parse(JSON.stringify(item))  })}
+            onPress={() => navigation.navigate('MangaDetails', { manga: item })}
             className="mb-4 flex-row"
         >
             <Image

@@ -87,7 +87,7 @@ export default function SavedMangasGrid({ numColumns = 3, filters = {} }: Readon
 
   const renderItem = ({ item }: any) => (
     <Pressable
-      onPress={() => navigation.navigate('MangaDetails', { manga: JSON.parse(JSON.stringify(item.manga)) })}
+      onPress={() => navigation.navigate('MangaDetails', { manga: item.manga })}
       className="mb-4"
       style={{ width: itemWidth, marginHorizontal: 4 }}
     >

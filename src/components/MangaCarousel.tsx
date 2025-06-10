@@ -135,7 +135,7 @@ function MangaCarousel({
         keyExtractor={(item, index) => `${title}-${item.id}-${index}`}
         renderItem={({ item }) => (
           <Pressable
-            onPress={() => navigation.navigate('MangaDetails', { manga: JSON.parse(JSON.stringify(item))  })}
+            onPress={() => navigation.navigate('MangaDetails', { manga: item  })}
             className="mr-4"
           >
             <Image
