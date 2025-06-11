@@ -74,8 +74,8 @@ const SimpleSVGSpinner = () => {
   return (
     <View style={styles.container}>
       <Svg 
-        width={80} 
-        height={80} 
+        width={50} 
+        height={50} 
         viewBox="0 0 24 24"
         style={styles.svg}
       >
