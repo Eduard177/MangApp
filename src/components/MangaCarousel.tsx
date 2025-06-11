@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import cloneDeep from 'lodash.clonedeep';
+import MangaCarouselSkeleton from './loading/MangaCarouselSkeleton';
 
 const LIMIT = 8;
 const MAX_TOTAL = 20;
@@ -116,17 +117,19 @@ function MangaCarousel({
           .join(' • ');
   };
 
-  return (
+  return loading && mangas.length === 0 ? (
+    <MangaCarouselSkeleton title={title} />
+  ) : (
     <View className="mb-6 min-h-[240px] dark:bg-gray-900">
       <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-xl font-bold dark:text-white">{title}</Text>     
-          <Pressable
-            onPress={() =>
-              navigation.navigate('MangaListScreen', { title, data, filters })
-            }
-          >
-            <Ionicons name="arrow-forward" size={26} color="#ec4899" />
-          </Pressable>
+        <Text className="text-xl font-bold dark:text-white">{title}</Text>
+        <Pressable
+          onPress={() =>
+            navigation.navigate('MangaListScreen', { title, data, filters })
+          }
+        >
+          <Ionicons name="arrow-forward" size={26} color="#ec4899" />
+        </Pressable>
       </View>
 
       <FlatList
@@ -135,7 +138,7 @@ function MangaCarousel({
         keyExtractor={(item, index) => `${title}-${item.id}-${index}`}
         renderItem={({ item }) => (
           <Pressable
-            onPress={() => navigation.navigate('MangaDetails', { manga: item  })}
+            onPress={() => navigation.navigate('MangaDetails', { manga: item })}
             className="mr-4"
           >
             <Image
@@ -156,17 +159,24 @@ function MangaCarousel({
               numberOfLines={2}
               className="mt-1 w-28 text-xs text-gray-400 leading-tight text-left"
             >
-              {getGendersNames(item.manga?.attributes?.tags ?? item.attributes?.tags)}
+              {getGendersNames(
+                item.manga?.attributes?.tags ?? item.attributes?.tags
+              )}
             </Text>
           </Pressable>
         )}
         showsHorizontalScrollIndicator={false}
         onEndReached={() => loadMore()}
         onEndReachedThreshold={0.5}
-        ListFooterComponent={loading ? <ActivityIndicator className="ml-4" /> : null}
+        ListFooterComponent={
+          loading && mangas.length > 0 ? (
+            <ActivityIndicator className="ml-4" />
+          ) : null
+        }
       />
     </View>
   );
+
 }
 
 export default React.memo(MangaCarousel);

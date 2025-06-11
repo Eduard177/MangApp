@@ -7,6 +7,7 @@ import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import { getMangaGenre, getPopularManga } from '../services/mangadexApi';
 import { Filters } from './ExploreScreen';
+import MangaListSkeleton from '../components/loading/MangaListSkeleton';
 
 const LIMIT = 20;
 
@@ -62,43 +63,50 @@ export default function MangaListScreen() {
         onFilter={() => openFilterModal()}
         onReload={() => setReloadFlag((prev) => !prev)}
       />
-    <View className="flex-1 bg-white dark:bg-gray-900 p-4">
-      <Text className="text-2xl font-bold mb-4 dark:text-white">{title}</Text>
-      <FlatList
-        data={mangas}
-        keyExtractor={(item, index) => `${item.id}-${index}`}
-        renderItem={({ item }) => (
-        <Pressable
-            onPress={() => navigation.navigate('MangaDetails', { manga: item })}
-            className="mb-4 flex-row"
-        >
-            <Image
-            source={{ uri: getCoverUrl(item) }}
-            style={{ width: 100, height: 150, borderRadius: 8, marginRight: 12 }}
-            />
-            <View className="flex-1">
-            <Text className="text-base font-bold dark:text-white">
-                {item.attributes?.title?.en ?? 'Sin título'}
-            </Text>
-            <Text className="text-sm text-gray-400">
-                {item.attributes?.tags?.map((t: any) => t.attributes?.name?.en).join(' • ')}
-            </Text>
-            </View>
-        </Pressable>
+      <View className="flex-1 bg-white dark:bg-gray-900 p-4">
+        <Text className="text-2xl font-bold mb-4 dark:text-white">{title}</Text>
+
+        {loading && mangas.length === 0 ? (
+          <MangaListSkeleton />
+        ) : (
+          <FlatList
+            data={mangas}
+            keyExtractor={(item, index) => `${item.id}-${index}`}
+            renderItem={({ item }) => (
+              <Pressable
+                onPress={() => navigation.navigate('MangaDetails', { manga: item })}
+                className="mb-4 flex-row"
+              >
+                <Image
+                  source={{ uri: getCoverUrl(item) }}
+                  style={{ width: 100, height: 150, borderRadius: 8, marginRight: 12 }}
+                />
+                <View className="flex-1">
+                  <Text className="text-base font-bold dark:text-white">
+                    {item.attributes?.title?.en ?? 'Sin título'}
+                  </Text>
+                  <Text className="text-sm text-gray-400">
+                    {item.attributes?.tags?.map((t: any) => t.attributes?.name?.en).join(' • ')}
+                  </Text>
+                </View>
+              </Pressable>
+            )}
+            onEndReached={() => loadMore()}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={loading && mangas.length > 0 ? <ActivityIndicator /> : null}
+          />
         )}
-        onEndReached={() => loadMore()}
-        onEndReachedThreshold={0.5}
-        ListFooterComponent={loading ? <ActivityIndicator /> : null}
-      />
-      <FilterModal ref={filterRef} 
-          filterContext={'manga'} 
+
+        <FilterModal
+          ref={filterRef}
+          filterContext={'manga'}
           onFilterChange={(newFilters) => {
-          setFilters((prev) => ({ ...prev, ...newFilters }));
-          setReloadFlag((prev) => !prev);
-        }} />
-
+            setFilters((prev) => ({ ...prev, ...newFilters }));
+            setReloadFlag((prev) => !prev);
+          }}
+        />
+      </View>
     </View>
-    </View>
-
   );
+
 }

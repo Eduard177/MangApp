@@ -34,6 +34,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { featchGetChapterPages } from '../services/mangaService';
 import { getOfflineChapter } from '../utils/downloadChapter';
+import SVGSpinnerAnimation from '../assets/components/AnimateSpinner';
+import SimpleSVGSpinner from '../assets/components/AnimateSpinner';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const MIN_SCALE = 1;
@@ -209,7 +211,10 @@ export default function ChapterReader() {
   };
 
   if (isLoading) {
-    return <View className="flex-1 justify-center items-center bg-black"><ActivityIndicator color="#fff" /></View>;
+    return <View className="flex-1 justify-center items-center bg-black">
+      <SimpleSVGSpinner/>
+      
+      </View>;
   }
 
   if (externalUrl) {
