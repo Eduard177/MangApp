@@ -63,7 +63,7 @@ export default function MangaListScreen() {
         onFilter={() => openFilterModal()}
         onReload={() => setReloadFlag((prev) => !prev)}
       />
-      <View className="flex-1 bg-white dark:bg-gray-900 p-4">
+      <View className="flex-1 bg-white dark:bg-gray-900 p-4 pr-1">
         <Text className="text-2xl font-bold mb-4 dark:text-white">{title}</Text>
 
         {loading && mangas.length === 0 ? (

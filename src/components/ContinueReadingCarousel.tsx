@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { clearContinueReading, getContinueReading } from '../services/storage';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
 import { Ionicons } from '@expo/vector-icons';
-import { clearReadHistory } from '../utils/readHistory';
 
 export default function ContinueReadingCarousel() {
   const [history, setHistory] = useState([]);

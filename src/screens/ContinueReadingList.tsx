@@ -29,7 +29,7 @@ export default function ContinueReadingList() {
   return (
     <View className='flex-1 bg-white dark:bg-gray-900'>
         <Navbar canSearch={false}/>
-        <View className="bg-white dark:bg-gray-900 p-4">
+        <View className="bg-white dark:bg-gray-900 p-4 pr-1">
         <Text className="text-2xl font-bold mb-4 dark:text-white">Continue Reading</Text>
         <FlatList
             data={mangas}
