@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
+import { getChapterNumber } from './mangadexApi';
 
 const CONTINUE_READING_KEY = 'continue_reading';
 
@@ -13,18 +14,21 @@ export const saveMangaToContinueReading = async (
     return;
   }
 
+  const chapterData = await getChapterNumber(lastReadChapterId);
+  const chapterNumber = chapterData?.data?.attributes?.chapter ?? "N/A";
+  const cover=  manga.relationships?.find((r: any) => r.type === 'cover_art')?.attributes
+        ?.fileName ?? null;
+  const title = manga.attributes?.title?.en ??
+      manga.attributes?.altTitles?.find((t: any) => t.en)?.en ??
+      'Sin título';
+      
   const entry = {
     mangaId: manga.id,
-    title:
-      manga.attributes?.title?.en ??
-      manga.attributes?.altTitles?.find((t: any) => t.en)?.en ??
-      'Sin título',
-    cover:
-      manga.relationships?.find((r: any) => r.type === 'cover_art')?.attributes
-        ?.fileName ?? null,
+    title,
+    cover,
     lastReadChapterId,
     timestamp: Date.now(),
-    chapter: manga.attributes?.chapter
+    chapter: chapterNumber
   };
 
   try {

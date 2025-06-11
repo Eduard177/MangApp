@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { clearContinueReading, getContinueReading } from '../services/storage';
 import Navbar from '../components/Navbar';
-import { Pressable, ScrollView, View, Text } from 'react-native';
+import { Pressable, ScrollView, View, Text, Button } from 'react-native';
 import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
@@ -9,6 +9,7 @@ import MainBar from '../components/MainBar';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import SavedMangasGrid from '../components/SavedMangas';
+import { clearReadHistory } from '../utils/readHistory';
 
 export default function HomeScreen() {
   const [continueReading, setContinueReading] = useState([]);

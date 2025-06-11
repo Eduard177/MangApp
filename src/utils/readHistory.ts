@@ -1,26 +1,41 @@
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const KEY = 'readChapters';
+const READ_CHAPTERS_KEY = 'readChapters';
+
 
 export const markChapterAsRead = async (chapterId: string) => {
-  const existing = await SecureStore.getItemAsync(KEY);
-  const parsed: string[] = existing ? JSON.parse(existing) : [];
+  try {
+    const existing = await AsyncStorage.getItem(READ_CHAPTERS_KEY);
+    const parsed: string[] = existing ? JSON.parse(existing) : [];
 
-  if (!parsed.includes(chapterId)) {
-    parsed.push(chapterId);
-    await SecureStore.setItemAsync(KEY, JSON.stringify(parsed));
+    if (!parsed.includes(chapterId)) {
+      parsed.push(chapterId);
+      await AsyncStorage.setItem(READ_CHAPTERS_KEY, JSON.stringify(parsed));
+    }
+  } catch (error) {
+    console.error('Error al marcar capítulo como leído:', error);
   }
 };
 
 export const hasChapterBeenRead = async (chapterId: string): Promise<boolean> => {
-  const existing = await SecureStore.getItemAsync(KEY);
-  const parsed: string[] = existing ? JSON.parse(existing) : [];
-  return parsed.includes(chapterId);
+  try {
+    const existing = await AsyncStorage.getItem(READ_CHAPTERS_KEY);
+    const parsed: string[] = existing ? JSON.parse(existing) : [];
+    return parsed.includes(chapterId);
+  } catch (error) {
+    console.error('Error al verificar si capítulo fue leído:', error);
+    return false;
+  }
 };
 
 export const getReadChapters = async (): Promise<string[]> => {
-  const raw = await SecureStore.getItemAsync(KEY);
-  return raw ? JSON.parse(raw) : [];
+  try {
+    const raw = await AsyncStorage.getItem(READ_CHAPTERS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (error) {
+    console.error('Error al obtener capítulos leídos:', error);
+    return [];
+  }
 };
 
 export const getReadChaptersForManga = async (mangaId: string, allChapterIds: string[]): Promise<string[]> => {
@@ -30,5 +45,14 @@ export const getReadChaptersForManga = async (mangaId: string, allChapterIds: st
   } catch (error) {
     console.warn(`Error al obtener capítulos leídos para el manga ${mangaId}:`, error);
     return [];
+  }
+};
+
+export const clearReadChapters = async () => {
+  try {
+    await AsyncStorage.removeItem(READ_CHAPTERS_KEY);
+    console.log('Capítulos leídos limpiados.');
+  } catch (error) {
+    console.error('Error al limpiar capítulos leídos:', error);
   }
 };

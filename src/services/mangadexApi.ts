@@ -183,6 +183,18 @@ export const getChaptersByMangaId = async (
   return response.data;
 };
 
+export const getChapterNumber = async (chapterId: string) => {
+  const lang = await getApiLanguage();
+  const response = await api.get(`/chapter/${chapterId}`, {
+    params: {
+      translatedLanguage: [lang],
+    },
+  });
+
+  return response.data;
+};
+  
+
 export const getChapterPages = async (chapterId: string) => {
   try {
     const response = await api.get(`/at-home/server/${chapterId}?forcePort443=true`);
