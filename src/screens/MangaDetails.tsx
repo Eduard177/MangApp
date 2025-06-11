@@ -20,6 +20,7 @@ import DownloadFullIcon from '../assets/components/DownloadFullIcon';
 import { useColorScheme } from 'nativewind';
 import { queueDownload } from '../services/backgroundDownloadMangaer';
 import Toast from 'react-native-toast-message';
+import { getReadChapters } from '../utils/readHistory';
 
 const screenHeight = Dimensions.get('window').height;
 
@@ -48,6 +49,10 @@ export default function MangaDetailScreen() {
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const { colorScheme } = useColorScheme();
+  const [readChaptersForThisManga, setReadChaptersForThisManga] = useState<string[]>([]);
+  const [showContinueButton, setShowContinueButton] = useState(false);
+  const [continueButtonText, setContinueButtonText] = useState('Empezar a leer');
+  const [targetChapterId, setTargetChapterId] = useState<string | null>(null);
   const isDark = colorScheme === 'dark';
 
   useEffect(() => {
@@ -75,6 +80,34 @@ export default function MangaDetailScreen() {
     };
     checkDownload();
   }, [manga, chapters, refreshKey]);
+
+  useEffect(() => {
+    const evaluateReadingStatus = async () => {
+      const allChapterIds = chapters.map((c) => c.id);
+      const readChapters = await getReadChapters();
+      const readForThisManga = allChapterIds.filter((id) => readChapters.includes(id));
+
+      setReadChaptersForThisManga(readForThisManga);
+
+      if (readForThisManga.length === 0 && allChapterIds.length > 0) {
+        setTargetChapterId(allChapterIds[0]);
+        setContinueButtonText('Empezar a leer');
+        setShowContinueButton(true);
+      } else if (readForThisManga.length > 0 && readForThisManga.length < allChapterIds.length) {
+        const lastRead = readForThisManga[readForThisManga.length - 1];
+        setTargetChapterId(lastRead);
+        setContinueButtonText('Seguir leyendo');
+        setShowContinueButton(true);
+      } else {
+        setShowContinueButton(false);
+      }
+    };
+
+    if (chapters.length > 0) {
+      evaluateReadingStatus();
+    }
+  }, [chapters]);
+
 
   const handleDownloadAllChapters = async () => {
     setIsDownloadingAll(true);
@@ -229,7 +262,7 @@ export default function MangaDetailScreen() {
           <Text className="text-white text-2xl font-bold">
             {manga.attributes.title.en ?? manga.attributes.altTitles?.find((t) => t.en)?.en}
           </Text>
-          {authorName && (
+          {!!authorName && (
             <Text className="text-white opacity-80 text-sm italic">
               By: {authorName}
             </Text>
@@ -291,9 +324,19 @@ export default function MangaDetailScreen() {
         />
       )}
 
-      <Pressable className="bg-pink-500 mx-6 my-4 py-3 rounded-full">
-        <Text className="text-white text-center font-bold">Seguir Leyendo</Text>
-      </Pressable>
+      {showContinueButton && !!targetChapterId && (
+        <Pressable
+          className="bg-pink-500 mx-6 my-4 py-3 rounded-full"
+          onPress={() => {
+            navigation.navigate('ChapterReader', {
+              chapterId: targetChapterId,
+              mangaId: manga.id,
+            });
+          }}
+        >
+          <Text className="text-white text-center font-bold">{continueButtonText}</Text>
+        </Pressable>
+      )}
     </View>
   );
 }

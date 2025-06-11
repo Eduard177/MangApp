@@ -7,7 +7,6 @@ import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import { getMangaGenre, getPopularManga } from '../services/mangadexApi';
 import { Filters } from './ExploreScreen';
-import cloneDeep from 'lodash.clonedeep';
 
 const LIMIT = 20;
 

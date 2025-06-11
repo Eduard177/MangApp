@@ -5,8 +5,6 @@ import { getSavedMangas } from '../services/favorites';
 import { isMangaDownloaded } from '../utils/downloadManga';
 import { getReadChaptersForManga } from '../utils/readHistory';
 import { getMangaAllChapters } from '../services/mangadexApi';
-import { getCoverUrl } from './MangaCarousel';
-import cloneDeep from 'lodash.clonedeep';
 
 interface Props {
   numColumns?: number;

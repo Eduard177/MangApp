@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { clearContinueReading, getContinueReading } from '../services/storage';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ContinueReadingCarousel() {
   const [history, setHistory] = useState([]);
@@ -26,7 +27,12 @@ export default function ContinueReadingCarousel() {
 
   return (
     <View className="mb-6">
-      <Text className="text-lg font-bold mb-2 dark:text-white">Continue Reading</Text>
+        <View className="flex-row justify-between items-center mb-2">
+          <Text className="text-lg font-bold dark:text-white">Continue Reading</Text>
+          <Pressable onPress={() => navigation.navigate('ContinueReadingList')}>
+            <Ionicons name="arrow-forward" size={26} color="#ec4899" />
+          </Pressable>
+        </View>
       <FlatList
         data={history}
         horizontal
