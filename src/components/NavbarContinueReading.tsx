@@ -12,7 +12,7 @@ interface Props {
   searchQuery: string;
   setSearchQuery: (v: string) => void;
   isEditing: boolean;
-  setIsEditing: () => void; // activa edición y checkAll
+  setIsEditing: () => void;
   onDeleteSelected: () => void;
   selectedCount: number;
   onCancelEditing: () => void;
@@ -36,7 +36,7 @@ export default function NavbarContinueReading({
 
   return (
     <View className="flex-row items-center justify-between p-4 pt-12 bg-white dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700">
-      <View className="flex-row  items-center space-x-2 flex-1">
+      <View className="flex-row items-center">
         {!isSearching && (
         <Pressable
           onPress={() =>
@@ -45,43 +45,64 @@ export default function NavbarContinueReading({
               routes: [{ name: 'Home' }],
             })
           }
+          className="mr-4"
         >
           <Logo />
         </Pressable>
         )}
         {isSearching && (
-          <TextInput
-            placeholder="Search saved mangas..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            className="flex-1 bg-gray-100 dark:bg-gray-700 px-4 py-2 ml-4 rounded text-black dark:text-white"
-            placeholderTextColor={isDark ? '#aaa' : '#666'}
-          />
+          <View className="flex-row items-center bg-gray-100 dark:bg-gray-700 rounded px-2 w-[220px]">
+            <TextInput
+              placeholder="Search saved mangas..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              className="flex-1 px-2 py-1 text-black dark:text-white"
+              placeholderTextColor={isDark ? '#aaa' : '#666'}
+            />
+            {searchQuery.length > 0 && (
+              <Pressable onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={20} color={isDark ? '#ccc' : '#888'} />
+              </Pressable>
+            )}
+            <Pressable
+              onPress={() => {
+                setIsSearching(false);
+                setSearchQuery('');
+              }}
+              className="ml-1"
+            >
+              <Ionicons name="close" size={20} color={isDark ? '#fff' : '#000'} />
+            </Pressable>
+          </View>
         )}
       </View>
 
-      <View className="flex-row space-x-4 ml-4">
-        {isEditing ? (
+      <View className="flex-row items-center ml-4">
+        {!isEditing && !isSearching && (
+          <>
+            <View className="mr-6">
+              <Pressable onPress={() => setIsSearching(true)}>
+                <Ionicons name="search" size={28} color={textColor} />
+              </Pressable>
+            </View>
+
+            <View>
+              <Pressable onPress={setIsEditing}>
+                <Ionicons name="trash" size={28} color={textColor} />
+              </Pressable>
+            </View>
+          </>
+        )}
+
+        {isEditing && (
           <>
             {selectedCount > 0 && (
-              <Pressable onPress={onDeleteSelected}>
+              <Pressable onPress={onDeleteSelected} className="mr-4">
                 <Ionicons name="checkmark-done" size={28} color="#ef4444" />
               </Pressable>
             )}
             <Pressable onPress={onCancelEditing}>
               <Ionicons name="close" size={28} color={textColor} />
-            </Pressable>
-          </>
-        ) : (
-          <>
-            {!isSearching && (
-              <Pressable onPress={() => setIsSearching(true)}>
-                <Ionicons name="search" size={28} color={textColor} />
-              </Pressable>
-            )}
-
-            <Pressable onPress={setIsEditing}>
-              <Ionicons name="trash" size={28} color={textColor} />
             </Pressable>
           </>
         )}

@@ -58,9 +58,6 @@ export default function ContinueReadingCarousel() {
           </Pressable>
         )}
       />
-      <Pressable onPress={clearContinueReading} className="bg-red-500 px-4 py-2 rounded mt-2">
-        <Text className="text-white text-center font-semibold">Borrar historial</Text>
-      </Pressable>
     </View>
   );
 }
