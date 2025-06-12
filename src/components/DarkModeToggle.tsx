@@ -3,20 +3,21 @@ import { Text, View } from 'react-native';
 import { useColorScheme } from 'nativewind';
 import MSwitch from './MSwitch';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function DarkModeToggle() {
   const { colorScheme, toggleColorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  const handleToggle = useCallback(() => {
-    try {
-      setTimeout(() => {
-        toggleColorScheme();
-      }, 10);
-    } catch (error) {
-      console.warn('Error al cambiar el tema:', error);
-    }
-  }, [colorScheme, toggleColorScheme]);
+const handleToggle = useCallback(async () => {
+  try {
+    const newScheme = isDark ? 'light' : 'dark';
+    await AsyncStorage.setItem('theme', newScheme);
+    toggleColorScheme();
+  } catch (error) {
+    console.warn('Error al cambiar el tema:', error);
+  }
+}, [isDark, toggleColorScheme]);
 
   return (
     <View className="flex-row items-center justify-between ">
