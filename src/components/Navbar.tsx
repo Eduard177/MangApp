@@ -10,6 +10,7 @@ interface NavbarProps {
   canSearch?: boolean;
   onFilter?: () => void;
   onReload?: () => void;
+  title?: string
 }
 
 export default function Navbar({ canSearch = true, onFilter, onReload }: Readonly<NavbarProps>) {

@@ -104,6 +104,10 @@ export default function SavedMangasGrid({ numColumns = 3, filters = {} }: Readon
     </Pressable>
   );
 
+  if (!filteredMangas || filteredMangas.length === 0) {
+    return <></>;
+  }
+
   return (
     <View className="mt-4">
       <Text className="text-lg font-bold mb-2 dark:text-white">Saved</Text>

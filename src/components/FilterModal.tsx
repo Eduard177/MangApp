@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   label: {
-    fontSize: 14,
+    fontSize: 18,
     marginLeft: 10,
   },
   tabBar: {

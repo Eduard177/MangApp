@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { clearContinueReading, getContinueReading } from '../services/storage';
 import Navbar from '../components/Navbar';
 import { Pressable, ScrollView, View, Text, Button } from 'react-native';
 import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
@@ -9,10 +8,8 @@ import MainBar from '../components/MainBar';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import SavedMangasGrid from '../components/SavedMangas';
-import { clearReadHistory } from '../utils/readHistory';
 
 export default function HomeScreen() {
-  const [continueReading, setContinueReading] = useState([]);
   const [reloadFlag, setReloadFlag] = useState(false);
   const filterRef = useRef<Modalize>(null);
   const [numColumns, setNumColumns] = useState(3);
@@ -22,14 +19,6 @@ export default function HomeScreen() {
   };
 
   const route = useRoute();
-
-  useEffect(() => {
-    const loadContinueReading = async () => {
-      const data = await getContinueReading();
-      setContinueReading(data);
-    };
-    loadContinueReading();
-  }, []);
 
   useFocusEffect(
     useCallback(() => {

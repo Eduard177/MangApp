@@ -1,7 +1,7 @@
 import { View, Text, FlatList, Image, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { clearContinueReading, getContinueReading } from '../services/storage';
+import { clearContinueReading, getLastContinueReading } from '../services/storage';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -11,7 +11,7 @@ export default function ContinueReadingCarousel() {
   const { reloadFlag } = useContinueReadingStore();
   useEffect(() => {
     const load = async () => {
-      const data = await getContinueReading();
+      const data = await getLastContinueReading();
       setHistory(data);
     };
     load();

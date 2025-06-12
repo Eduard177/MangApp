@@ -39,7 +39,7 @@ export const saveMangaToContinueReading = async (
 
     history.unshift(entry);
 
-    history = history.slice(0, 10);
+    history = history.slice(0, 100);
     await AsyncStorage.setItem(CONTINUE_READING_KEY, JSON.stringify(history));
   } catch (e) {
     console.error('Error saving to continue reading:', e);
@@ -57,10 +57,21 @@ export const getContinueReading = async () => {
   }
 };
 
+export const getLastContinueReading = async (limit: number = 15) => {
+  try {
+    const existing = await AsyncStorage.getItem(CONTINUE_READING_KEY);
+    const history = existing ? JSON.parse(existing) : [];
+    return history.slice(0, limit);
+  } catch (e) {
+    console.error('Error loading continue reading list:', e);
+    return [];
+  }
+};
+
 export const clearContinueReading = async () => {
   try {
     await AsyncStorage.removeItem(CONTINUE_READING_KEY);
-    useContinueReadingStore.getState().toggleReload();
+    useContinueReadingStore.getState().toggleReload(); 
     console.log('Historial de lectura borrado.');
   } catch (e) {
     console.error('Error al borrar el historial de lectura', e);

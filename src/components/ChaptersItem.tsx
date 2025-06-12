@@ -70,7 +70,7 @@ export default function ChapterItem({ item, mangaId, navigation, isRead, onMarkA
           </Text>
         </View>
         <Pressable onPress={handleDownload}>
-          <DownloadChapterIcon downloaded={isDownloaded} isDownloading={isDownloading} />
+          <DownloadChapterIcon size={16} downloaded={isDownloaded} isDownloading={isDownloading} />
         </Pressable>
       </View>
     </Pressable>
