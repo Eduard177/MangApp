@@ -51,7 +51,7 @@ export default function NavbarContinueReading({
         </Pressable>
         )}
         {isSearching && (
-          <View className="flex-row items-center bg-gray-100 dark:bg-gray-700 rounded px-2 w-[220px]">
+          <View className="flex-row items-center bg-gray-100 dark:bg-gray-700 rounded px-2 mt-2 w-[300px]">
             <TextInput
               placeholder="Search saved mangas..."
               value={searchQuery}
