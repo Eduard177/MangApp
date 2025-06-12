@@ -5,6 +5,7 @@ import { getSavedMangas } from '../services/favorites';
 import { isMangaDownloaded } from '../utils/downloadManga';
 import { getReadChaptersForManga } from '../utils/readHistory';
 import { getMangaAllChapters } from '../services/mangadexApi';
+import SavedMangaSkeleton from './loading/MangaSaveListSkeleton';
 
 interface Props {
   numColumns?: number;
@@ -19,6 +20,7 @@ interface Props {
 export default function SavedMangasGrid({ numColumns = 3, filters = {} }: Readonly<Props>) {
   const [savedMangas, setSavedMangas] = useState<any[]>([]);
   const [filteredMangas, setFilteredMangas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
   const processMangaItem = async (item: any) => {
@@ -49,33 +51,36 @@ export default function SavedMangasGrid({ numColumns = 3, filters = {} }: Readon
 
   useEffect(() => {
     const load = async () => {
-      const data = await getSavedMangas();
+      setLoading(true);
+      try {
+        const data = await getSavedMangas();
+        const mangasConProgreso = await Promise.all(data.map(processMangaItem));
 
-      const mangasConProgreso = await Promise.all(
-        data.map(processMangaItem)
-      );
+        let result = mangasConProgreso;
 
-      let result = mangasConProgreso;
+        if (filters.onlyDownloaded) {
+          result = result.filter((m) => m.isDownloaded);
+        }
 
-      if (filters.onlyDownloaded) {
-        result = result.filter((m) => m.isDownloaded);
+        if (filters.unread) {
+          result = result.filter((m) => m.readChapters.length === 0);
+        }
+
+        if (filters.completed) {
+          result = result.filter((m) => m.totalChapters > 0 && m.readChapters.length === m.totalChapters);
+        }
+
+        if (filters.started) {
+          result = result.filter((m) => m.readChapters.length > 0 && m.readChapters.length < m.totalChapters);
+        }
+
+        setSavedMangas(data);
+        setFilteredMangas(result);
+      } catch (e) {
+        console.error('Error loading saved mangas:', e);
+      } finally {
+        setLoading(false);
       }
-
-      if (filters.unread) {
-        result = result.filter((m) => m.readChapters.length === 0);
-      }
-
-      if (filters.completed) {
-        result = result.filter((m) => m.totalChapters > 0 && m.readChapters.length === m.totalChapters);
-      }
-
-      if (filters.started) {
-
-        result = result.filter((m) =>  m.readChapters.length > 0 && m.readChapters.length < m.totalChapters);
-      }
-
-      setSavedMangas(data);
-      setFilteredMangas(result);
     };
 
     load();
@@ -104,8 +109,12 @@ export default function SavedMangasGrid({ numColumns = 3, filters = {} }: Readon
     </Pressable>
   );
 
+  if (loading) {
+    return <SavedMangaSkeleton numColumns={numColumns} />;
+  }
+
   if (!filteredMangas || filteredMangas.length === 0) {
-    return <></>;
+    return null;
   }
 
   return (

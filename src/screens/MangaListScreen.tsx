@@ -22,7 +22,7 @@ export default function MangaListScreen() {
   const [hasMore, setHasMore] = useState(true);
   const [reloadFlag, setReloadFlag] = useState(false);
 
-  const { manga, setFilter } = useFilterStore(); // ✅ usamos el filtro global
+  const { manga, setFilter } = useFilterStore();
   const filterRef = useRef<Modalize>(null);
 
   const openFilterModal = () => {
@@ -53,7 +53,7 @@ export default function MangaListScreen() {
 
   useEffect(() => {
     loadMore(true);
-  }, [manga]); // ✅ recarga al cambiar filtro global
+  }, [manga]);
 
   return (
     <View className='flex-1'>
