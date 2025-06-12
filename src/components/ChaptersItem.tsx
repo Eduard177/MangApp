@@ -25,10 +25,10 @@ export default function ChapterItem({ item, mangaId, navigation, isRead, onMarkA
   }, [isDownloading]);
 
   const handleDownload = async () => {
-    setIsDownloading(true);
     if (isDownloaded) {
       await deleteChapter(mangaId, item.id);
     } else {
+      setIsDownloading(true);
       await downloadChapter(item.id, mangaId);
       setIsDownloaded(true);
     }
@@ -70,7 +70,7 @@ export default function ChapterItem({ item, mangaId, navigation, isRead, onMarkA
           </Text>
         </View>
         <Pressable onPress={handleDownload}>
-          <DownloadChapterIcon size={16} downloaded={isDownloaded} isDownloading={isDownloading} />
+          <DownloadChapterIcon size={20} downloaded={isDownloaded} isDownloading={isDownloading} />
         </Pressable>
       </View>
     </Pressable>

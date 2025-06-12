@@ -249,7 +249,7 @@ export default function MangaDetailScreen() {
             } else if (manga.attributes.status === 'hiatus') {
               statusClass = 'bg-yellow-400';
             } else if (manga.attributes.status === 'cancelled') {
-              statusClass = 'bg-red-500';
+              statusClass = 'bg-red-700';
             }
             return (
               <View className={`self-start rounded-full px-3 py-1 ${statusClass}`}>

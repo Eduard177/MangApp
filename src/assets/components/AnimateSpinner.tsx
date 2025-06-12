@@ -4,7 +4,7 @@ import Svg, { Rect } from 'react-native-svg';
 
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
-const SimpleSVGSpinner = () => {
+const SimpleSVGSpinner = ({ size = 50}) => {
   // Valores animados para posiciones
   const rect1X = useRef(new Animated.Value(1)).current;
   const rect1Y = useRef(new Animated.Value(1)).current;
@@ -74,8 +74,8 @@ const SimpleSVGSpinner = () => {
   return (
     <View style={styles.container}>
       <Svg 
-        width={50} 
-        height={50} 
+        width={size} 
+        height={size} 
         viewBox="0 0 24 24"
         style={styles.svg}
       >

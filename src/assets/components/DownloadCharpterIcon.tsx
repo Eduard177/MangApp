@@ -1,6 +1,8 @@
 import React from 'react';
 import Svg, { G, Line, Defs, ClipPath, Circle, Path } from 'react-native-svg';
 import { ActivityIndicator, View } from 'react-native';
+import { useColorScheme } from 'nativewind';
+import SimpleSVGSpinner from './AnimateSpinner';
 
 type Props = {
   downloaded?: boolean;
@@ -9,11 +11,13 @@ type Props = {
 };
 
 export default function DownloadChapterIcon({ downloaded = false, isDownloading = false, size = 24 }: Readonly<Props>) {
+  
+  const { colorScheme } = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const fillColor = isDark ? '#FFF' : '#333';
   if (isDownloading) {
     return (
-      <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="small" color="#FF3E91" />
-      </View>
+        <SimpleSVGSpinner size={size} />
     );
   }
 
@@ -50,12 +54,12 @@ export default function DownloadChapterIcon({ downloaded = false, isDownloading 
           <Path
             d="M9.954,11.226a.493.493,0,0,1-.357-.153L6.137,7.449a.5.5,0,0,1,.357-.836H8.306V2.824A.825.825,0,0,1,9.13,2h1.648a.825.825,0,0,1,.824.824V6.613h1.812a.5.5,0,0,1,.357.836l-3.46,3.625A.493.493,0,0,1,9.954,11.226Z"
             transform="translate(-2.046)"
-            fill="#333"
+            fill={fillColor}
           />
           <Path
             d="M14.663,20.636H1.153A1.155,1.155,0,0,1,0,19.483v-.33A1.155,1.155,0,0,1,1.153,18h13.51a1.155,1.155,0,0,1,1.153,1.153v.33A1.155,1.155,0,0,1,14.663,20.636Z"
             transform="translate(0 -5.456)"
-            fill="#333"
+            fill={fillColor}
           />
         </G>
       </G>
