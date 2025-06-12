@@ -18,19 +18,20 @@ interface FilterModalProps {
   numColumns?: number;
   setNumColumns?: React.Dispatch<React.SetStateAction<number>>;
   filterContext: 'home' | 'manga';
+  filters: {
+    onlyDownloaded: boolean;
+    unread: boolean;
+    completed: boolean;
+    started: boolean;
+    orderBy: string;
+    direction: string;
+  };
+  setFilters: React.Dispatch<React.SetStateAction<any>>;
   onFilterChange?: (filters: { [key: string]: any }) => void;
 }
 
 const FilterModal = forwardRef<Modalize, FilterModalProps>(
-  ({ numColumns, setNumColumns, filterContext, onFilterChange }, ref) => {
-    const [filters, setFilters] = useState({
-      onlyDownloaded: false,
-      unread: false,
-      completed: false,
-      started: false,
-      orderBy: 'rating',
-      direction: 'desc',
-    });
+  ({ numColumns, setNumColumns, filterContext, filters, setFilters, onFilterChange }, ref) => {
     const [visible, setVisible] = useState(false);
     const [activeTab, setActiveTab] = useState<'filter' | 'appear'>('filter');
 
@@ -89,11 +90,12 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
     };
 
     const updateFilter = (key: string, value: any) => {
+      if (!filters || typeof filters !== 'object') return;
+
       const updated = { ...filters, [key]: value };
       setFilters(updated);
       onFilterChange?.(updated);
     };
-
     return (
       <Modal
         animationType="none"
@@ -152,17 +154,17 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
                   }}
                 >
                   <View style={{ width }}>
-                    {['onlyDownloaded', 'unread', 'completed', 'started'].map((key) => (
-                      <View key={key} style={styles.row}>
-                        <MSwitch
-                          value={filters[key]}
-                          onValueChange={(val) => updateFilter(key, val)}
-                        />
-                        <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                          {key.charAt(0).toUpperCase() + key.slice(1)}
-                        </Text>
-                      </View>
-                    ))}
+                  {['onlyDownloaded', 'unread', 'completed', 'started'].map((key) => (
+                    <View key={key} style={styles.row}>
+                      <MSwitch
+                        value={filters?.[key] ?? false}
+                        onValueChange={(val) => updateFilter(key, val)}
+                      />
+                      <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
+                        {key.charAt(0).toUpperCase() + key.slice(1)}
+                      </Text>
+                    </View>
+                  ))}
                   </View>
 
                   {typeof numColumns !== 'undefined' && (
@@ -205,7 +207,7 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
                         width: 12,
                         height: 12,
                         borderRadius: 6,
-                        backgroundColor: filters.orderBy === order ? '#ec4899' : '#ccc',
+                        backgroundColor: filters?.orderBy === order ? '#ec4899' : '#ccc',
                       }}
                     />
                     <Text style={[styles.label, { marginLeft: 10, color: isDark ? '#fff' : '#1f2937' }]}>
@@ -228,7 +230,7 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
                         width: 12,
                         height: 12,
                         borderRadius: 6,
-                        backgroundColor: filters.direction === dir ? '#ec4899' : '#ccc',
+                        backgroundColor: filters?.direction === dir ? '#ec4899' : '#ccc',
                       }}
                     />
                     <Text style={[styles.label, { marginLeft: 10, color: isDark ? '#fff' : '#1f2937' }]}>

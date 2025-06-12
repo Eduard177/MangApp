@@ -7,7 +7,7 @@ import NavbarContinueReading from '../components/NavbarContinueReading';
 
 export default function ContinueReadingList() {
   const [mangas, setMangas] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);  
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const [isEditing, setIsEditing] = useState(false);
@@ -22,14 +22,6 @@ export default function ContinueReadingList() {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
-  };
-
-  const selectAll = () => {
-    if (selected.length === filteredMangas.length) {
-      setSelected([]);
-    } else {
-      setSelected(filteredMangas.map((item) => item.mangaId));
-    }
   };
 
   const handleDeleteSelected = async () => {

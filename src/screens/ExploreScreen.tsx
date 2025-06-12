@@ -8,6 +8,8 @@ import { useRoute } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import { getMangaGenre, getPopularManga } from '../services/mangadexApi';
+import { useFilterStore } from '../store/useFilterStore';
+
 export type Filters = {
   orderBy?: 'rating' | 'followedCount' | 'createdAt' | 'updatedAt';
   direction?: 'asc' | 'desc';
@@ -26,11 +28,7 @@ type GenreItem = {
 
 export default function ExploreScreen() {
   const [reloadFlag, setReloadFlag] = useState(false);
-  const [filters, setFilters] = useState<Filters>({
-    orderBy: 'rating',
-    direction: 'desc',
-  });
-
+  const { manga, setFilter } = useFilterStore();
   const filterRef = useRef<Modalize>(null);
   const route = useRoute();
 
@@ -42,19 +40,18 @@ export default function ExploreScreen() {
     () => [
       {
         title: 'Popular',
-        fetchFunction: (limit,offset, filters) =>
+        fetchFunction: (limit, offset, filters) =>
           getPopularManga(limit, offset, filters),
       },
       ...Object.entries(GENRES).map(([key, id]) => ({
         title: formatGenreName(key),
-        fetchFunction: (limit,offset, filters, id) =>
+        fetchFunction: (limit, offset, filters, id) =>
           getMangaGenre(limit, offset, filters, id),
         data: id,
       })),
     ],
-    [filters.orderBy, filters.direction]
+    [manga.orderBy, manga.direction] // ✅ Dependemos del filtro global
   );
-
 
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
@@ -71,7 +68,7 @@ export default function ExploreScreen() {
             title={item.title}
             fetchFunction={item.fetchFunction}
             data={item?.data}
-            filters={filters}
+            filters={manga}
           />
         )}
         initialNumToRender={2}
@@ -87,8 +84,10 @@ export default function ExploreScreen() {
       <FilterModal
         ref={filterRef}
         filterContext="manga"
+        filters={manga}
+        setFilters={(newFilters) => setFilter('manga', newFilters)}
         onFilterChange={(newFilters) => {
-          setFilters((prev) => ({ ...prev, ...newFilters }));
+          setFilter('manga', newFilters);
           setReloadFlag((prev) => !prev);
         }}
       />

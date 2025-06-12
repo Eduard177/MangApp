@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
-import { Pressable, ScrollView, View, Text, Button } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
@@ -8,12 +8,14 @@ import MainBar from '../components/MainBar';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import SavedMangasGrid from '../components/SavedMangas';
+import { useFilterStore } from '../store/useFilterStore';
 
 export default function HomeScreen() {
   const [reloadFlag, setReloadFlag] = useState(false);
   const filterRef = useRef<Modalize>(null);
-  const [numColumns, setNumColumns] = useState(3);
-  const [filters, setFilters] = useState({});
+
+  const { home, setFilter, setNumColumns, numColumns } = useFilterStore();
+
   const openFilterModal = () => {
     filterRef.current?.open();
   };
@@ -29,21 +31,25 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
       <Navbar
-        onFilter={() => openFilterModal()}
+        onFilter={openFilterModal}
         onReload={() => setReloadFlag((prev) => !prev)}
       />
 
       <ScrollView className="p-4 bg-white dark:bg-gray-900">
         <ContinueReadingCarousel />
-        <SavedMangasGrid numColumns={numColumns} filters={filters} />
+        <SavedMangasGrid numColumns={numColumns} filters={home} />
       </ScrollView>
 
       <FilterModal
         ref={filterRef}
+        filterContext="home"
+        filters={home}
+        setFilters={(newFilters) => setFilter('home', newFilters)}
+        onFilterChange={(newFilters) => {
+          setFilter('home', newFilters);
+        }}
         numColumns={numColumns}
         setNumColumns={setNumColumns}
-        filterContext="home"
-        onFilterChange={(f) => setFilters(f)}
       />
 
       <MainBar currentRouteName={route.name} />

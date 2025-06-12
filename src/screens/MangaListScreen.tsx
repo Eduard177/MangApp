@@ -1,18 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, FlatList, Image, ActivityIndicator, Pressable } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getCoverUrl } from '../components/MangaCarousel'; // reutiliza tu función
+import { getCoverUrl } from '../components/MangaCarousel';
 import Navbar from '../components/Navbar';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import { getMangaGenre, getPopularManga } from '../services/mangadexApi';
-import { Filters } from './ExploreScreen';
 import MangaListSkeleton from '../components/loading/MangaListSkeleton';
+import { useFilterStore } from '../store/useFilterStore';
 
 const LIMIT = 20;
 
 export default function MangaListScreen() {
   const route = useRoute();
+  const navigation = useNavigation();
   const { title, data } = route.params as any;
 
   const [mangas, setMangas] = useState<any[]>([]);
@@ -20,17 +21,14 @@ export default function MangaListScreen() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [reloadFlag, setReloadFlag] = useState(false);
-  const [filters, setFilters] = useState<Filters>({
-    orderBy: 'rating',
-    direction: 'desc',
-  });
 
+  const { manga, setFilter } = useFilterStore(); // ✅ usamos el filtro global
   const filterRef = useRef<Modalize>(null);
-  
-  const navigation = useNavigation();
+
   const openFilterModal = () => {
     filterRef.current?.open();
   };
+
   const loadMore = async (replace = false) => {
     if (loading || !hasMore) return;
 
@@ -39,7 +37,7 @@ export default function MangaListScreen() {
       const fetchFunction = title === 'popular' ? getPopularManga : getMangaGenre;
       const currentOffset = replace ? 0 : offset;
 
-      const newData = await fetchFunction(LIMIT, currentOffset, filters, data ?? null);
+      const newData = await fetchFunction(LIMIT, currentOffset, manga, data ?? null); // ✅ usamos filtro global
       const filtered = newData.filter((item: any) =>
         replace ? true : !mangas.find((m) => m.id === item.id)
       );
@@ -55,12 +53,12 @@ export default function MangaListScreen() {
 
   useEffect(() => {
     loadMore(true);
-  }, [filters]);
+  }, [manga]); // ✅ recarga al cambiar filtro global
 
   return (
     <View className='flex-1'>
       <Navbar
-        onFilter={() => openFilterModal()}
+        onFilter={openFilterModal}
         onReload={() => setReloadFlag((prev) => !prev)}
       />
       <View className="flex-1 bg-white dark:bg-gray-900 p-4 pr-1">
@@ -100,13 +98,14 @@ export default function MangaListScreen() {
         <FilterModal
           ref={filterRef}
           filterContext={'manga'}
+          filters={manga}
+          setFilters={(newFilters) => setFilter('manga', newFilters)}
           onFilterChange={(newFilters) => {
-            setFilters((prev) => ({ ...prev, ...newFilters }));
+            setFilter('manga', newFilters);
             setReloadFlag((prev) => !prev);
           }}
         />
       </View>
     </View>
   );
-
 }
