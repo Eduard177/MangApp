@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import Navbar from '../components/Navbar';
 import { ScrollView, View } from 'react-native';
 import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
 import MainBar from '../components/MainBar';
 import { Modalize } from 'react-native-modalize';
@@ -11,8 +11,8 @@ import SavedMangasGrid from '../components/SavedMangas';
 import { useFilterStore } from '../store/useFilterStore';
 
 export default function HomeScreen() {
-  const [reloadFlag, setReloadFlag] = useState(false);
   const filterRef = useRef<Modalize>(null);
+  const navigation = useNavigation();
 
   const { home, setFilter, setNumColumns, numColumns } = useFilterStore();
 
@@ -28,11 +28,16 @@ export default function HomeScreen() {
     }, [])
   );
 
+  const handlePageReload = () => {
+    const currentRoute = navigation.getState().routes[navigation.getState().index];
+    navigation.replace(currentRoute.name, currentRoute.params);
+  };
+
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
       <Navbar
         onFilter={openFilterModal}
-        onReload={() => setReloadFlag((prev) => !prev)}
+        onReload={handlePageReload}
       />
 
       <ScrollView className="p-4 bg-white dark:bg-gray-900">

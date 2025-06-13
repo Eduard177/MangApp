@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import MangaCarousel from '../components/MangaCarousel';
 import { GENRES } from '../utils/genres/genreConstants';
 import MainBar from '../components/MainBar';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import { getMangaGenre, getPopularManga } from '../services/mangadexApi';
@@ -31,6 +31,7 @@ export default function ExploreScreen() {
   const { manga, setFilter } = useFilterStore();
   const filterRef = useRef<Modalize>(null);
   const route = useRoute();
+  const navigation = useNavigation();
 
   const openFilterModal = () => {
     filterRef.current?.open();
@@ -53,11 +54,17 @@ export default function ExploreScreen() {
     [manga.orderBy, manga.direction] // ✅ Dependemos del filtro global
   );
 
+  const handlePageReload = () => {
+    setReloadFlag((prev) => !prev);
+    const currentRoute = navigation.getState().routes[navigation.getState().index];
+    navigation.replace(currentRoute.name, currentRoute.params);
+  };
+
   return (
     <View className="flex-1 bg-white dark:bg-gray-900">
       <Navbar
         onFilter={openFilterModal}
-        onReload={() => setReloadFlag((prev) => !prev)}
+        onReload={handlePageReload}
       />
 
       <FlatList

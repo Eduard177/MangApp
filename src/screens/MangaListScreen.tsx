@@ -51,6 +51,13 @@ export default function MangaListScreen() {
     }
   };
 
+  const handlePageReload = () => {
+    setReloadFlag((prev) => !prev);
+    const currentRoute = navigation.getState().routes[navigation.getState().index];
+    navigation.replace(currentRoute.name, currentRoute.params);
+  };
+
+
   useEffect(() => {
     loadMore(true);
   }, [manga]);
@@ -59,7 +66,7 @@ export default function MangaListScreen() {
     <View className='flex-1'>
       <Navbar
         onFilter={openFilterModal}
-        onReload={() => setReloadFlag((prev) => !prev)}
+        onReload={handlePageReload}
       />
       <View className="flex-1 bg-white dark:bg-gray-900 p-4 pr-1">
         <Text className="text-2xl font-bold mb-4 dark:text-white">{title}</Text>

@@ -12,7 +12,6 @@ import DarkModeToggle from '../components/DarkModeToggle';
 import Logo from '../assets/components/Logo';
 import { useIncognito } from '../context/incognito-context';
 export default function SettingsScreen() {
-  const [onlyDownloaded, setOnlyDownloaded] = useState(false);
   const { incognito, toggleIncognito } = useIncognito();
   const languageModalRef = useRef<Modalize>(null);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -55,7 +54,7 @@ export default function SettingsScreen() {
           onPress={() => languageModalRef.current?.open()}
         >
             <Feather name="globe" size={20} color="#ec4899" />
-            <Text className="text-base font-medium dark:text-white">Cambiar idioma</Text>
+            <Text className="text-base font-medium dark:text-white">Languages</Text>
         </TouchableOpacity>
 
         <TouchableOpacity className="flex-row items-center space-x-3">
