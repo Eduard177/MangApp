@@ -69,8 +69,8 @@ export default function ChapterItem({ item, mangaId, navigation, isRead, onMarkA
             {item.attributes.title ?? 'Sin título'}
           </Text>
         </View>
-        <Pressable onPress={handleDownload}>
-          <DownloadChapterIcon size={20} downloaded={isDownloaded} isDownloading={isDownloading} />
+        <Pressable onPress={handleDownload} hitSlop={20}>
+          <DownloadChapterIcon size={26} downloaded={isDownloaded} isDownloading={isDownloading} />
         </Pressable>
       </View>
     </Pressable>
