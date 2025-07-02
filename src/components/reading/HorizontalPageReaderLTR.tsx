@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Dimensions, Pressable, FlatList, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import ChapterReaderControls from '../ChapterReaderControls';
+import { saveMangaToContinueReading } from '../../services/storage';
+import { useIncognito } from '../../context/incognito-context';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -13,9 +15,11 @@ export default function HorizontalPageReaderLTR({
   goToChapter,
   navigation,
   initialPage = 0,
+  chapterId,
 }: any) {
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [showControls, setShowControls] = useState(true);
+  const { incognito } = useIncognito();
 
   if (!images || images.length === 0) {
     return (
@@ -32,6 +36,11 @@ export default function HorizontalPageReaderLTR({
         horizontal
         pagingEnabled
         initialScrollIndex={initialPage}
+        getItemLayout={(_, index) => ({
+          length: SCREEN_WIDTH,
+          offset: SCREEN_WIDTH * index,
+          index,
+        })}
         keyExtractor={(item, i) => `${item}-${i}`}
         renderItem={({ item }) => (
           <Pressable
@@ -49,6 +58,9 @@ export default function HorizontalPageReaderLTR({
         onMomentumScrollEnd={(e) => {
           const page = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
           setCurrentPage(page);
+          if (!incognito && manga && chapterId) {
+            saveMangaToContinueReading(manga, chapterId, page);
+          }
         }}
         showsHorizontalScrollIndicator={false}
       />

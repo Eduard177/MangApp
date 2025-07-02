@@ -19,6 +19,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import ChapterReaderControls from '../ChapterReaderControls';
+import { saveMangaToContinueReading } from '../../services/storage';
+import { useIncognito } from '../../context/incognito-context';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const MIN_SCALE = 1;
@@ -32,13 +34,13 @@ export default function VerticalScrollReader({
   goToChapter,
   navigation,
   initialPage = 0,
-  incognito = false,
-  saveMangaToContinueReading,
+  chapterId,
 }: any) {
   const [imageHeights, setImageHeights] = useState<{ [key: string]: number }>({});
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [showControls, setShowControls] = useState(true);
   const [isZoomed, setIsZoomed] = useState(false);
+  const { incognito } = useIncognito();
 
   // Zoom & pan shared values
   const scale = useSharedValue(1);
@@ -135,8 +137,8 @@ export default function VerticalScrollReader({
         sum += imageHeights[images[i]] ?? SCREEN_WIDTH * 1.5;
         if (scrollY < sum) {
           setCurrentPage(i);
-          if (!incognito && manga && saveMangaToContinueReading) {
-            saveMangaToContinueReading(manga, chapters[currentChapterIndex]?.id, i);
+          if (!incognito && manga && chapterId) {
+            saveMangaToContinueReading(manga, chapterId, i);
           }
           return;
         }

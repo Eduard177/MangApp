@@ -125,6 +125,7 @@ export default function ChapterReaderScreen() {
     goToChapter,
     navigation,
     initialPage: page,
+    chapterId
   };
 
   if (mode === 'horizontal-rtl') {
