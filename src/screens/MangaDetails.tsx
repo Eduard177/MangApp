@@ -291,11 +291,11 @@ export default function MangaDetailScreen() {
           </Pressable>
         ))}
 
-        <View className="flex flex-row items-center gap-3 ml-auto">
+        <View className="flex flex-row items-center gap-3 ml-auto mr-2">
           <Animated.View style={{ opacity: fadeAnim }}>
             {activeTab === 'chapters' && (
               <Pressable onPress={toggleOrder}>
-                <Ionicons name="swap-vertical" size={20} color={reverseOrder ? '#FF3E91' : 'gray'} />
+                <Ionicons name="swap-vertical" size={22} color={reverseOrder ? '#FF3E91' : 'gray'} />
               </Pressable>
             )}
           </Animated.View>
@@ -307,7 +307,7 @@ export default function MangaDetailScreen() {
             }
             setIsSaved(!isSaved);
           }}>
-            <Ionicons name="bookmark" size={20} color={isSaved ? '#FF3E91' : 'gray'} />
+            <Ionicons name="bookmark" size={22} color={isSaved ? '#FF3E91' : 'gray'} />
           </Pressable>
         </View>
       </View>
