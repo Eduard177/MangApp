@@ -45,12 +45,13 @@ type RootStackParamList = {
   ChapterReader: {
     chapterId: string;
     mangaId: string;
+    page?: number;
   };
 };
 
 export default function ChapterReader() {
   const route = useRoute<RouteProp<RootStackParamList, 'ChapterReader'>>();
-  const { chapterId, mangaId } = route.params;
+  const { chapterId, mangaId, page = 0 } = route.params;
   const navigation = useNavigation();
   const { incognito } = useIncognito();
 
@@ -205,15 +206,41 @@ export default function ChapterReader() {
       let sum = 0;
       for (let i = 0; i < chapterImages.length; i++) {
         sum += imageHeights[chapterImages[i]] ?? SCREEN_WIDTH * 1.5;
-        if (scrollY < sum) return setCurrentPage(i);
+        if (scrollY < sum) {
+          setCurrentPage(i);
+
+          if (!incognito && manga) {
+            saveMangaToContinueReading(manga, chapterId, i);  // ✅ Incluye la página actual
+          }
+
+          return;
+        }
       }
     }
   };
 
+    const getItemLayout = (_: any, index: number) => {
+    // Usa altura aproximada por defecto si no está calculada
+    const defaultHeight = SCREEN_WIDTH * 1.5;
+    const height = chapterImages[index] ? (imageHeights[chapterImages[index]] ?? defaultHeight) : defaultHeight;
+
+    let offset = 0;
+    for (let i = 0; i < index; i++) {
+      const h = chapterImages[i] ? (imageHeights[chapterImages[i]] ?? defaultHeight) : defaultHeight;
+      offset += h;
+    }
+
+    return {
+      length: height,
+      offset,
+      index,
+    };
+  };
+
+
   if (isLoading) {
     return <View className="flex-1 justify-center items-center bg-black">
       <SimpleSVGSpinner/>
-      
       </View>;
   }
 
@@ -263,9 +290,14 @@ export default function ChapterReader() {
                 scrollEnabled={!isZoomed}
                 showsVerticalScrollIndicator={false}
                 initialNumToRender={3}
+                getItemLayout={getItemLayout}
+                initialScrollIndex={page}
                 windowSize={5}
                 maxToRenderPerBatch={4}
                 removeClippedSubviews={true}
+                onScrollToIndexFailed={(info) => {
+                  console.warn('Scroll to index failed', info);
+                }}
               />
             </Animated.View>
           </PinchGestureHandler>

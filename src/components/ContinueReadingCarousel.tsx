@@ -44,6 +44,7 @@ export default function ContinueReadingCarousel() {
               navigation.navigate('ChapterReader', {
                 chapterId: item.lastReadChapterId,
                 mangaId: item.mangaId,
+                page: item.page ?? 0,
               })
             }
           >
@@ -54,7 +55,9 @@ export default function ContinueReadingCarousel() {
             <Text className="mt-1 w-28 text-sm font-medium text-left dark:text-white" numberOfLines={1}>
               {item.title ?? 'Sin título'}
             </Text>
-            <Text className="text-xs text-pink-500">Capítulo {item.chapter}</Text>
+            <Text className="text-xs text-pink-500">
+              Capítulo {item.chapter} {item.page != null ? `(Page ${item.page + 1})` : ''}
+            </Text>
           </Pressable>
         )}
       />
