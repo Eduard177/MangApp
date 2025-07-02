@@ -306,7 +306,7 @@ export default function ChapterReader() {
 
       {showControls && (
         <ChapterReaderControls
-          currentPage={currentPage + 1}
+          currentPage={currentPage}
           totalPages={chapterImages.length}
           manga={manga}
           onClose={() => navigation.goBack()}
