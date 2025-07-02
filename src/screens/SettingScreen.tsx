@@ -1,6 +1,6 @@
 // src/screens/SettingsScreen.tsx
 import { View, Text, TouchableOpacity, ScrollView, Pressable } from 'react-native';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation';
@@ -11,9 +11,11 @@ import { Modalize } from 'react-native-modalize';
 import DarkModeToggle from '../components/DarkModeToggle';
 import Logo from '../assets/components/Logo';
 import { useIncognito } from '../context/incognito-context';
+import ReaderModeModal from '../components/ReaderModeModal';
 export default function SettingsScreen() {
   const { incognito, toggleIncognito } = useIncognito();
   const languageModalRef = useRef<Modalize>(null);
+  const modalRef = useRef<Modalize>(null);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute();
   return (
@@ -57,7 +59,10 @@ export default function SettingsScreen() {
             <Text className="text-base font-medium dark:text-white">Languages</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="flex-row items-center space-x-3">
+        <TouchableOpacity 
+          className="flex-row items-center space-x-3"
+          onPress={() => modalRef.current?.open()}
+        >
           <Feather name="settings" size={20} color="#ec4899"/>
           <Text className="text-base font-medium dark:text-white">Config</Text>
         </TouchableOpacity>
@@ -77,6 +82,7 @@ export default function SettingsScreen() {
 
     <MainBar currentRouteName={route.name}/>
     <LanguageModal ref={languageModalRef} />
+    <ReaderModeModal ref={modalRef} />
 
   </View>
   );

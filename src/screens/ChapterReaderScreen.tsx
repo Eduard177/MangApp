@@ -1,247 +1,111 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  Dimensions,
-  Button,
-  Linking,
-  Pressable,
-  FlatList,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-} from 'react-native';
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
-import {
-  fetchAllChapters,
-  fetchMangaById,
-  getChapterPagesExternal,
-} from '../services/mangadexApi';
+import { View, Text, Button, Linking, Dimensions } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useReaderModeStore, ReaderMode } from '../store/useReaderModeStore';
+
+import VerticalScrollReader from '../components/reading/VerticalScrollReader';
+import HorizontalPageReader from '../components/reading/HorizontalPageReader';
+import HorizontalPageReaderLTR from '../components/reading/HorizontalPageReaderLTR';
+
+import SimpleSVGSpinner from '../assets/components/AnimateSpinner';
+import { getOfflineChapter } from '../utils/downloadChapter';
+import { fetchMangaById, fetchAllChapters, getChapterPagesExternal } from '../services/mangadexApi';
+import { featchGetChapterPages } from '../services/mangaService';
 import { saveMangaToContinueReading } from '../services/storage';
-import ChapterReaderControls from '../components/ChapterReaderControls';
 import { markChapterAsRead } from '../utils/readHistory';
 import { useIncognito } from '../context/incognito-context';
 import { Image } from 'expo-image';
 
-import { PinchGestureHandler, PanGestureHandler } from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedGestureHandler,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  runOnJS,
-} from 'react-native-reanimated';
-import { featchGetChapterPages } from '../services/mangaService';
-import { getOfflineChapter } from '../utils/downloadChapter';
-import SVGSpinnerAnimation from '../assets/components/AnimateSpinner';
-import SimpleSVGSpinner from '../assets/components/AnimateSpinner';
-
 const SCREEN_WIDTH = Dimensions.get('window').width;
-const MIN_SCALE = 1;
-const MAX_SCALE = 3;
+const STORAGE_KEY = 'readerMode';
 
-type RootStackParamList = {
-  ChapterReader: {
-    chapterId: string;
-    mangaId: string;
-    page?: number;
-  };
-};
-
-export default function ChapterReader() {
-  const route = useRoute<RouteProp<RootStackParamList, 'ChapterReader'>>();
-  const { chapterId, mangaId, page = 0 } = route.params;
-  const navigation = useNavigation();
+export default function ChapterReaderScreen() {
+  const route = useRoute<any>();
+  const navigation = useNavigation<any>();
   const { incognito } = useIncognito();
+  const { mode, setMode } = useReaderModeStore();
+
+  const { chapterId, mangaId, page = 0 } = route.params;
 
   const [isLoading, setIsLoading] = useState(true);
-  const [chapterImages, setChapterImages] = useState<string[]>([]);
-  const [imageHeights, setImageHeights] = useState<{ [key: string]: number }>({});
   const [externalUrl, setExternalUrl] = useState<string | null>(null);
+  const [images, setImages] = useState<string[]>([]);
   const [manga, setManga] = useState<any>(null);
   const [chapters, setChapters] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [showControls, setShowControls] = useState(true);
-  const [isZoomed, setIsZoomed] = useState(false);
-
-  // Zoom & pan shared values
-  const scale = useSharedValue(1);
-  const baseScale = useSharedValue(1);
-  const pinchScale = useSharedValue(1);
-  const focalX = useSharedValue(0);
-  const focalY = useSharedValue(0);
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const savedTranslateX = useSharedValue(0);
-  const savedTranslateY = useSharedValue(0);
-
-  const resetZoom = () => {
-    baseScale.value = MIN_SCALE;
-    scale.value = withSpring(MIN_SCALE);
-    translateX.value = withSpring(0);
-    translateY.value = withSpring(0);
-    savedTranslateX.value = 0;
-    savedTranslateY.value = 0;
-    setIsZoomed(false);
-  };
-
-  const pinchGestureHandler = useAnimatedGestureHandler({
-    onStart: (e) => {
-      focalX.value = e.focalX;
-      focalY.value = e.focalY;
-      pinchScale.value = 1;
-    },
-    onActive: (e) => {
-      const newScale = Math.min(Math.max(baseScale.value * e.scale, MIN_SCALE), MAX_SCALE);
-      scale.value = newScale;
-      if (newScale > MIN_SCALE) {
-        translateX.value = savedTranslateX.value + (e.focalX - focalX.value) * (newScale - baseScale.value);
-        translateY.value = savedTranslateY.value + (e.focalY - focalY.value) * (newScale - baseScale.value);
-      }
-    },
-    onEnd: () => {
-      baseScale.value = scale.value;
-      savedTranslateX.value = translateX.value;
-      savedTranslateY.value = translateY.value;
-
-      if (scale.value <= MIN_SCALE + 0.1) {
-        runOnJS(resetZoom)();
-      } else {
-        const maxX = (SCREEN_WIDTH * (scale.value - 1)) / 2;
-        const clampedX = Math.max(-maxX, Math.min(maxX, translateX.value));
-        const clampedY = Math.max(-maxX, Math.min(maxX, translateY.value));
-        translateX.value = withSpring(clampedX);
-        translateY.value = withSpring(clampedY);
-        savedTranslateX.value = clampedX;
-        savedTranslateY.value = clampedY;
-        runOnJS(setIsZoomed)(scale.value > MIN_SCALE);
-      }
-    },
-  });
-
-  const panGestureHandler = useAnimatedGestureHandler({
-    onActive: (event) => {
-      if (scale.value > MIN_SCALE) {
-        const maxX = (SCREEN_WIDTH * (scale.value - 1)) / 2;
-        translateX.value = Math.max(-maxX, Math.min(maxX, savedTranslateX.value + event.translationX));
-        translateY.value = Math.max(-maxX, Math.min(maxX, savedTranslateY.value + event.translationY));
-      }
-    },
-    onEnd: () => {
-      savedTranslateX.value = translateX.value;
-      savedTranslateY.value = translateY.value;
-    },
-  });
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-  }));
-
-  const handleDoubleTap = () => {
-    isZoomed ? resetZoom() : (() => {
-      baseScale.value = 2;
-      scale.value = withSpring(2);
-      setIsZoomed(true);
-    })();
-  };
-
-  const fetchChapter = async () => {
-    try {
-      setIsLoading(true);
-      resetZoom();
-
-      const local = await getOfflineChapter(chapterId);
-      const manga = await fetchMangaById(mangaId);
-      setManga(manga);
-
-      if (local?.length) {
-        setChapterImages(local);
-        return;
-      }
-
-      const res = await featchGetChapterPages(chapterId);
-      const url = await getChapterPagesExternal(chapterId);
-      const attributes = url?.data?.attributes;
-
-      const chaptersList = (await fetchAllChapters(mangaId)) ?? [];
-      setChapters(chaptersList);
-
-      if (!res.chapter || res.chapter.data.length === 0) {
-        setExternalUrl(attributes?.externalUrl ?? null);
-        if (!incognito) await saveMangaToContinueReading(manga, chapterId);
-        return;
-      }
-
-      const firstImage = `${res.baseUrl}/data/${res.chapter.hash}/${res.chapter.data[0]}`;
-      await Image.prefetch(firstImage);
-
-      const images = res.chapter.data.map(
-        (name: string) => `${res.baseUrl}/data/${res.chapter.hash}/${name}`
-      );
-      setChapterImages(images);
-      if (!incognito) await saveMangaToContinueReading(manga, chapterId);
-    } catch (e) {
-      console.error('Error fetching chapter:', e);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
 
   useEffect(() => {
+    const loadMode = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        if (saved === 'vertical' || saved === 'horizontal-rtl' || saved === 'horizontal-ltr') {
+          setMode(saved as ReaderMode);
+        }
+      } catch (e) {
+        console.warn('Error loading reader mode from storage:', e);
+      }
+    };
+    loadMode();
+  }, []);
+
+  useEffect(() => {
+    const fetchChapter = async () => {
+      try {
+        setIsLoading(true);
+
+        const local = await getOfflineChapter(chapterId);
+        const mangaData = await fetchMangaById(mangaId);
+        setManga(mangaData);
+
+        if (local?.length) {
+          setImages(local);
+          return;
+        }
+
+        const res = await featchGetChapterPages(chapterId);
+        const url = await getChapterPagesExternal(chapterId);
+        const attributes = url?.data?.attributes;
+
+        const chaptersList = (await fetchAllChapters(mangaId)) ?? [];
+        setChapters(chaptersList);
+
+        if (!res.chapter || res.chapter.data.length === 0) {
+          setExternalUrl(attributes?.externalUrl ?? null);
+          if (!incognito) await saveMangaToContinueReading(mangaData, chapterId);
+          return;
+        }
+
+        const firstImage = `${res.baseUrl}/data/${res.chapter.hash}/${res.chapter.data[0]}`;
+        await Image.prefetch(firstImage);
+
+        const imagesList = res.chapter.data.map(
+          (name: string) => `${res.baseUrl}/data/${res.chapter.hash}/${name}`
+        );
+        setImages(imagesList);
+        if (!incognito) await saveMangaToContinueReading(mangaData, chapterId);
+      } catch (e) {
+        console.error('Error fetching chapter:', e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchChapter();
     if (!incognito) markChapterAsRead(chapterId);
   }, [chapterId, mangaId]);
 
-  const currentChapterIndex = chapters.findIndex((ch) => ch.id === chapterId);
-  const goToChapter = (id: string) => navigation.navigate('ChapterReader', { chapterId: id, mangaId });
+  useEffect(() => {
+    const index = chapters.findIndex((c) => c.id === chapterId);
+    setCurrentChapterIndex(index);
+  }, [chapters, chapterId]);
 
-  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (!isZoomed) {
-      const scrollY = e.nativeEvent.contentOffset.y;
-      let sum = 0;
-      for (let i = 0; i < chapterImages.length; i++) {
-        sum += imageHeights[chapterImages[i]] ?? SCREEN_WIDTH * 1.5;
-        if (scrollY < sum) {
-          setCurrentPage(i);
-
-          if (!incognito && manga) {
-            saveMangaToContinueReading(manga, chapterId, i);  // ✅ Incluye la página actual
-          }
-
-          return;
-        }
-      }
-    }
+  const goToChapter = (id: string) => {
+    navigation.replace('ChapterReader', { chapterId: id, mangaId });
   };
-
-    const getItemLayout = (_: any, index: number) => {
-    // Usa altura aproximada por defecto si no está calculada
-    const defaultHeight = SCREEN_WIDTH * 1.5;
-    const height = chapterImages[index] ? (imageHeights[chapterImages[index]] ?? defaultHeight) : defaultHeight;
-
-    let offset = 0;
-    for (let i = 0; i < index; i++) {
-      const h = chapterImages[i] ? (imageHeights[chapterImages[i]] ?? defaultHeight) : defaultHeight;
-      offset += h;
-    }
-
-    return {
-      length: height,
-      offset,
-      index,
-    };
-  };
-
 
   if (isLoading) {
-    return <View className="flex-1 justify-center items-center bg-black">
-      <SimpleSVGSpinner/>
-      </View>;
+    return <View className="flex-1 justify-center items-center bg-black"><SimpleSVGSpinner/></View>;
   }
 
   if (externalUrl) {
@@ -253,71 +117,23 @@ export default function ChapterReader() {
     );
   }
 
-  return (
-    <View className="flex-1 bg-black">
-      <PanGestureHandler onGestureEvent={panGestureHandler} enabled={isZoomed}>
-        <Animated.View style={{ flex: 1 }}>
-          <PinchGestureHandler onGestureEvent={pinchGestureHandler}>
-            <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-              <FlatList
-                data={chapterImages}
-                keyExtractor={(item, i) => `${item}-${i}`}
-                renderItem={({ item }) => {
-                  const height = imageHeights[item] ?? SCREEN_WIDTH * 1.5;
-                  return (
-                    <Pressable
-                      onPress={() => setShowControls((prev) => !prev)}
-                      onLongPress={handleDoubleTap}
-                      style={{ width: SCREEN_WIDTH, height }}
-                    >
-                      <Image
-                        source={{ uri: item }}
-                        style={{ width: SCREEN_WIDTH, height: Math.min(height, 2048) }}
-                        contentFit="contain"
-                        cachePolicy="memory-disk"
-                        onLoad={(e) => {
-                          const { width, height } = e.source;
-                          if (width && height) {
-                            const scaledHeight = (SCREEN_WIDTH / width) * height;
-                            setImageHeights((prev) => ({ ...prev, [item]: scaledHeight }));
-                          }
-                        }}
-                      />
-                    </Pressable>
-                  );
-                }}
-                onScroll={handleScroll}
-                scrollEnabled={!isZoomed}
-                showsVerticalScrollIndicator={false}
-                initialNumToRender={3}
-                getItemLayout={getItemLayout}
-                initialScrollIndex={page}
-                windowSize={5}
-                maxToRenderPerBatch={4}
-                removeClippedSubviews={true}
-                onScrollToIndexFailed={(info) => {
-                  console.warn('Scroll to index failed', info);
-                }}
-              />
-            </Animated.View>
-          </PinchGestureHandler>
-        </Animated.View>
-      </PanGestureHandler>
+  const sharedProps = {
+    images,
+    manga,
+    chapters,
+    currentChapterIndex,
+    goToChapter,
+    navigation,
+    initialPage: page,
+  };
 
-      {showControls && (
-        <ChapterReaderControls
-          currentPage={currentPage}
-          totalPages={chapterImages.length}
-          manga={manga}
-          onClose={() => navigation.goBack()}
-          onNextChapter={() => {
-            if (currentChapterIndex < chapters.length - 1) goToChapter(chapters[currentChapterIndex + 1].id);
-          }}
-          onPrevChapter={() => {
-            if (currentChapterIndex > 0) goToChapter(chapters[currentChapterIndex - 1].id);
-          }}
-        />
-      )}
-    </View>
-  );
+  if (mode === 'horizontal-rtl') {
+    return <HorizontalPageReader {...sharedProps} />;
+  }
+
+  if (mode === 'horizontal-ltr') {
+    return <HorizontalPageReaderLTR {...sharedProps} />;
+  }
+
+  return <VerticalScrollReader {...sharedProps} />;
 }
