@@ -9,10 +9,9 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 
-import { PanGestureHandler, PinchGestureHandler } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   withSpring,
   runOnJS,
@@ -63,21 +62,21 @@ export default function VerticalScrollReader({
     setIsZoomed(false);
   };
 
-  const pinchGestureHandler = useAnimatedGestureHandler({
-    onStart: (e) => {
+  const pinchGesture = Gesture.Pinch()
+    .onStart((e) => {
       focalX.value = e.focalX;
       focalY.value = e.focalY;
       pinchScale.value = 1;
-    },
-    onActive: (e) => {
+    })
+    .onUpdate((e) => {
       const newScale = Math.min(Math.max(baseScale.value * e.scale, MIN_SCALE), MAX_SCALE);
       scale.value = newScale;
       if (newScale > MIN_SCALE) {
         translateX.value = savedTranslateX.value + (e.focalX - focalX.value) * (newScale - baseScale.value);
         translateY.value = savedTranslateY.value + (e.focalY - focalY.value) * (newScale - baseScale.value);
       }
-    },
-    onEnd: () => {
+    })
+    .onEnd(() => {
       baseScale.value = scale.value;
       savedTranslateX.value = translateX.value;
       savedTranslateY.value = translateY.value;
@@ -94,22 +93,23 @@ export default function VerticalScrollReader({
         savedTranslateY.value = clampedY;
         runOnJS(setIsZoomed)(scale.value > MIN_SCALE);
       }
-    },
-  });
+    });
 
-  const panGestureHandler = useAnimatedGestureHandler({
-    onActive: (event) => {
+  const panGesture = Gesture.Pan()
+    .enabled(isZoomed)
+    .onUpdate((event) => {
       if (scale.value > MIN_SCALE) {
         const maxX = (SCREEN_WIDTH * (scale.value - 1)) / 2;
         translateX.value = Math.max(-maxX, Math.min(maxX, savedTranslateX.value + event.translationX));
         translateY.value = Math.max(-maxX, Math.min(maxX, savedTranslateY.value + event.translationY));
       }
-    },
-    onEnd: () => {
+    })
+    .onEnd(() => {
       savedTranslateX.value = translateX.value;
       savedTranslateY.value = translateY.value;
-    },
-  });
+    });
+
+  const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -173,54 +173,50 @@ export default function VerticalScrollReader({
 
   return (
     <View className="flex-1 bg-black">
-      <PanGestureHandler onGestureEvent={panGestureHandler} enabled={isZoomed}>
-        <Animated.View style={{ flex: 1 }}>
-          <PinchGestureHandler onGestureEvent={pinchGestureHandler}>
-            <Animated.View style={[{ flex: 1 }, animatedStyle]}>
-              <FlatList
-                data={images}
-                keyExtractor={(item, i) => `${item}-${i}`}
-                renderItem={({ item }) => {
-                  const height = imageHeights[item] ?? SCREEN_WIDTH * 1.5;
-                  return (
-                    <Pressable
-                      onPress={() => setShowControls((prev) => !prev)}
-                      onLongPress={handleDoubleTap}
-                      style={{ width: SCREEN_WIDTH, height }}
-                    >
-                      <Image
-                        source={{ uri: item }}
-                        style={{ width: SCREEN_WIDTH, height: Math.min(height, 2048) }}
-                        contentFit="contain"
-                        cachePolicy="memory-disk"
-                        onLoad={(e) => {
-                          const { width, height } = e.source;
-                          if (width && height) {
-                            const scaledHeight = (SCREEN_WIDTH / width) * height;
-                            setImageHeights((prev) => ({ ...prev, [item]: scaledHeight }));
-                          }
-                        }}
-                      />
-                    </Pressable>
-                  );
-                }}
-                onScroll={handleScroll}
-                scrollEnabled={!isZoomed}
-                showsVerticalScrollIndicator={false}
-                initialNumToRender={3}
-                getItemLayout={getItemLayout}
-                initialScrollIndex={initialPage}
-                windowSize={5}
-                maxToRenderPerBatch={4}
-                removeClippedSubviews={true}
-                onScrollToIndexFailed={(info) => {
-                  console.warn('Scroll to index failed', info);
-                }}
-              />
-            </Animated.View>
-          </PinchGestureHandler>
+      <GestureDetector gesture={composedGesture}>
+        <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+          <FlatList
+            data={images}
+            keyExtractor={(item, i) => `${item}-${i}`}
+            renderItem={({ item }) => {
+              const height = imageHeights[item] ?? SCREEN_WIDTH * 1.5;
+              return (
+                <Pressable
+                  onPress={() => setShowControls((prev) => !prev)}
+                  onLongPress={handleDoubleTap}
+                  style={{ width: SCREEN_WIDTH, height }}
+                >
+                  <Image
+                    source={{ uri: item }}
+                    style={{ width: SCREEN_WIDTH, height: Math.min(height, 2048) }}
+                    contentFit="contain"
+                    cachePolicy="memory-disk"
+                    onLoad={(e) => {
+                      const { width, height } = e.source;
+                      if (width && height) {
+                        const scaledHeight = (SCREEN_WIDTH / width) * height;
+                        setImageHeights((prev) => ({ ...prev, [item]: scaledHeight }));
+                      }
+                    }}
+                  />
+                </Pressable>
+              );
+            }}
+            onScroll={handleScroll}
+            scrollEnabled={!isZoomed}
+            showsVerticalScrollIndicator={false}
+            initialNumToRender={3}
+            getItemLayout={getItemLayout}
+            initialScrollIndex={initialPage}
+            windowSize={5}
+            maxToRenderPerBatch={4}
+            removeClippedSubviews={true}
+            onScrollToIndexFailed={(info) => {
+              console.warn('Scroll to index failed', info);
+            }}
+          />
         </Animated.View>
-      </PanGestureHandler>
+      </GestureDetector>
 
       {showControls && (
         <ChapterReaderControls
