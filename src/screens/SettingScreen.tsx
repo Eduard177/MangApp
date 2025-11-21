@@ -4,7 +4,6 @@ import { useRef } from 'react';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation';
-import MainBar from '../components/MainBar';
 import MSwitch from '../components/MSwitch';
 import LanguageModal from '../components/LanguageModal';
 import { Modalize } from 'react-native-modalize';
@@ -26,7 +25,7 @@ export default function SettingsScreen() {
             <Pressable onPress={() =>
                 navigation.reset({
                 index: 0,
-                routes: [{ name: 'Home' }],
+                routes: [{ name: 'Root' }],
                 })
             }>
                 <Logo />
@@ -80,7 +79,6 @@ export default function SettingsScreen() {
       </View>
     </ScrollView>
 
-    <MainBar currentRouteName={route.name}/>
     <LanguageModal ref={languageModalRef} />
     <ReaderModeModal ref={modalRef} />
 

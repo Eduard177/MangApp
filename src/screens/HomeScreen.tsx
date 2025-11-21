@@ -4,7 +4,6 @@ import { ScrollView, View } from 'react-native';
 import ContinueReadingCarousel from '../components/ContinueReadingCarousel';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { useContinueReadingStore } from '../store/useContinueReadingStore';
-import MainBar from '../components/MainBar';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
 import SavedMangasGrid from '../components/SavedMangas';
@@ -56,8 +55,6 @@ export default function HomeScreen() {
         numColumns={numColumns}
         setNumColumns={setNumColumns}
       />
-
-      <MainBar currentRouteName={route.name} />
     </View>
   );
 }

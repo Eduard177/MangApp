@@ -1,4 +1,11 @@
-import * as FileSystem from 'expo-file-system';
+import {
+  getInfoAsync,
+  makeDirectoryAsync,
+  downloadAsync,
+  readDirectoryAsync,
+  deleteAsync,
+  documentDirectory,
+} from 'expo-file-system/legacy';
 import { featchGetChapterPages } from '../services/mangaService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -9,15 +16,15 @@ export const downloadChapter = async (chapterId: string, mangaId: string) => {
     const res = await featchGetChapterPages(chapterId);
     const { baseUrl, chapter } = res;
 
-    const dir = `${FileSystem.documentDirectory}${mangaId}/${chapterId}`;
-    await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
+    const dir = `${documentDirectory}${mangaId}/${chapterId}`;
+    await makeDirectoryAsync(dir, { intermediates: true });
 
     const imageUris: string[] = [];
 
     for (const fileName of chapter.data) {
       const url = `${baseUrl}/data/${chapter.hash}/${fileName}`;
       const localPath = `${dir}/${fileName}`;
-      const downloaded = await FileSystem.downloadAsync(url, localPath);
+      const downloaded = await downloadAsync(url, localPath);
       imageUris.push(downloaded.uri);
     }
 
@@ -40,14 +47,14 @@ export const isChapterDownloaded = async (
   minPageCount: number = 1
 ): Promise<boolean> => {
   try {
-    const chapterPath = `${FileSystem.documentDirectory}/${mangaId}/${chapterId}`;
-    const chapterInfo = await FileSystem.getInfoAsync(chapterPath);
+    const chapterPath = `${documentDirectory}/${mangaId}/${chapterId}`;
+    const chapterInfo = await getInfoAsync(chapterPath);
 
     if (!chapterInfo.exists || !chapterInfo.isDirectory) {
       return false;
     }
 
-    const files = await FileSystem.readDirectoryAsync(chapterPath);
+    const files = await readDirectoryAsync(chapterPath);
     const imageFiles = files.filter(file => /\.(jpg|jpeg|png|webp)$/i.test(file));
     
     return imageFiles.length >= minPageCount;
@@ -58,11 +65,11 @@ export const isChapterDownloaded = async (
 };
 
 export const deleteChapter = async (mangaId: string, chapterId: string) => {
-  const dirPath = `${FileSystem.documentDirectory}/${mangaId}/${chapterId}`;
-  const dirInfo = await FileSystem.getInfoAsync(dirPath);
+  const dirPath = `${documentDirectory}/${mangaId}/${chapterId}`;
+  const dirInfo = await getInfoAsync(dirPath);
 
   if (dirInfo.exists) {
-    await FileSystem.deleteAsync(dirPath, { idempotent: true });
+    await deleteAsync(dirPath, { idempotent: true });
     console.log('Capitulo borrado:', chapterId);
   } else {
     console.log('No existe la carpeta del manga:', dirPath);

@@ -3,7 +3,6 @@ import { useRef, useState, useMemo } from 'react';
 import Navbar from '../components/Navbar';
 import MangaCarousel from '../components/MangaCarousel';
 import { GENRES } from '../utils/genres/genreConstants';
-import MainBar from '../components/MainBar';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Modalize } from 'react-native-modalize';
 import FilterModal from '../components/FilterModal';
@@ -85,8 +84,6 @@ export default function ExploreScreen() {
         contentContainerStyle={{ padding: 16, paddingBottom: 100 }}
         extraData={reloadFlag}
       />
-
-      <MainBar currentRouteName={route.name} />
 
       <FilterModal
         ref={filterRef}
