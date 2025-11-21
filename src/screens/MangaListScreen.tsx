@@ -30,9 +30,13 @@ export default function MangaListScreen() {
   };
 
   const loadMore = async (replace = false) => {
-    if (loading || !hasMore) return;
+    if (loading || (!hasMore && !replace)) return;
 
     setLoading(true);
+    if (replace) {
+      setMangas([]);
+    }
+
     try {
       const fetchFunction = title === 'popular' ? getPopularManga : getMangaGenre;
       const currentOffset = replace ? 0 : offset;
@@ -53,14 +57,12 @@ export default function MangaListScreen() {
 
   const handlePageReload = () => {
     setReloadFlag((prev) => !prev);
-    const currentRoute = navigation.getState().routes[navigation.getState().index];
-    navigation.replace(currentRoute.name, currentRoute.params);
   };
 
 
   useEffect(() => {
     loadMore(true);
-  }, [manga]);
+  }, [manga, reloadFlag]);
 
   return (
     <View className='flex-1'>

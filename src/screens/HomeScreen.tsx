@@ -21,6 +21,8 @@ export default function HomeScreen() {
 
   const route = useRoute();
 
+  const [reloadFlag, setReloadFlag] = useState(false);
+
   useFocusEffect(
     useCallback(() => {
       useContinueReadingStore.getState().toggleReload();
@@ -28,8 +30,8 @@ export default function HomeScreen() {
   );
 
   const handlePageReload = () => {
-    const currentRoute = navigation.getState().routes[navigation.getState().index];
-    navigation.replace(currentRoute.name, currentRoute.params);
+    setReloadFlag((prev) => !prev);
+    useContinueReadingStore.getState().toggleReload();
   };
 
   return (
@@ -41,13 +43,13 @@ export default function HomeScreen() {
 
       <ScrollView className="p-4 bg-white dark:bg-gray-900">
         <ContinueReadingCarousel />
-        <SavedMangasGrid numColumns={numColumns} filters={home} />
+        <SavedMangasGrid numColumns={numColumns} filters={home} reloadTrigger={reloadFlag} />
       </ScrollView>
 
       <FilterModal
         ref={filterRef}
         filterContext="home"
-        filters={home}
+        filters={{ ...home, orderBy: 'title', direction: 'asc' }}
         setFilters={(newFilters) => setFilter('home', newFilters)}
         onFilterChange={(newFilters) => {
           setFilter('home', newFilters);

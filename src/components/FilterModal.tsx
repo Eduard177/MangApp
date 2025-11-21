@@ -2,15 +2,15 @@ import React, { forwardRef, useState, useImperativeHandle } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   Modal,
-  TouchableOpacity,
   Dimensions,
   Animated,
+  Pressable,
 } from 'react-native';
 import MSwitch from './MSwitch';
 import { useColorScheme } from 'nativewind';
 import { Modalize } from 'react-native-modalize';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width, height } = Dimensions.get('window');
 
@@ -104,39 +104,41 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
         onRequestClose={handleClose}
         statusBarTranslucent={true}
       >
-        <Animated.View style={[styles.modalOverlay, { opacity: opacityAnim }]}>
-          <TouchableOpacity style={styles.modalBackground} activeOpacity={1} onPress={handleClose} />
+        <Animated.View 
+            className="flex-1 justify-end bg-black/50"
+            style={{ opacity: opacityAnim }}
+        >
+          <Pressable className="flex-1" onPress={handleClose} />
           <Animated.View
-            style={[
-              styles.modalContainer,
-              {
-                backgroundColor: isDark ? '#1f2937' : '#fff',
+            className="bg-white dark:bg-gray-900 rounded-t-3xl pb-8 max-h-[70%]"
+            style={{
                 transform: [{ translateY: slideAnim }],
-              },
-            ]}
+            }}
           >
-            <View style={[styles.handle, { backgroundColor: isDark ? '#fff' : '#ccc' }]} />
+            {/* Handle */}
+            <View className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full self-center mt-3 mb-4" />
 
             {/* --- HOME FILTER --- */}
             {filterContext === 'home' && (
-              <View style={styles.content}>
-                <View style={styles.tabBar}>
-                  <TouchableOpacity
-                    style={[styles.tabItem, activeTab === 'filter' && styles.activeTab]}
+              <View className="flex-1">
+                {/* Tabs */}
+                <View className="flex-row border-b border-gray-200 dark:border-gray-800 px-4 mb-4">
+                  <Pressable
                     onPress={() => handleTabChange('filter')}
+                    className={`mr-6 pb-3 ${activeTab === 'filter' ? 'border-b-2 border-pink-500' : ''}`}
                   >
-                    <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
-                      Filter
+                    <Text className={`text-base font-semibold ${activeTab === 'filter' ? 'text-pink-500' : 'text-gray-500 dark:text-gray-400'}`}>
+                      Filters
                     </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.tabItem, activeTab === 'appear' && styles.activeTab]}
+                  </Pressable>
+                  <Pressable
                     onPress={() => handleTabChange('appear')}
+                    className={`mr-6 pb-3 ${activeTab === 'appear' ? 'border-b-2 border-pink-500' : ''}`}
                   >
-                    <Text style={[styles.tabText, { color: isDark ? '#fff' : '#1f2937' }]}>
-                      Appear
+                    <Text className={`text-base font-semibold ${activeTab === 'appear' ? 'text-pink-500' : 'text-gray-500 dark:text-gray-400'}`}>
+                      Appearance
                     </Text>
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
 
                 <Animated.View
@@ -153,91 +155,112 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
                     ],
                   }}
                 >
-                  <View style={{ width }}>
-                  {['onlyDownloaded', 'unread', 'completed', 'started'].map((key) => (
-                    <View key={key} style={styles.row}>
-                      <MSwitch
-                        value={filters?.[key] ?? false}
-                        onValueChange={(val) => updateFilter(key, val)}
-                      />
-                      <Text style={[styles.label, { color: isDark ? '#fff' : '#1f2937' }]}>
-                        {key.charAt(0).toUpperCase() + key.slice(1)}
-                      </Text>
-                    </View>
-                  ))}
+                  {/* Filter Tab Content */}
+                  <View style={{ width }} className="px-6">
+                    {['onlyDownloaded', 'unread', 'completed', 'started'].map((key) => (
+                        <View key={key} className="flex-row items-center justify-between py-3 border-b border-gray-100 dark:border-gray-800">
+                            <Text className="text-base text-gray-800 dark:text-gray-200 font-medium">
+                                {key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                            </Text>
+                            <MSwitch
+                                value={filters?.[key] ?? false}
+                                onValueChange={(val) => updateFilter(key, val)}
+                            />
+                        </View>
+                    ))}
                   </View>
 
+                  {/* Appearance Tab Content */}
                   {typeof numColumns !== 'undefined' && (
-                    <View style={{ width }}>
-                      <View style={styles.columnsRow}>
-                        {[2, 3, 4, 5].map((num) => (
-                          <TouchableOpacity
-                            key={num}
-                            onPress={() => setNumColumns(num)}
-                            style={[styles.chip, numColumns === num && styles.chipSelected]}
-                          >
-                            <Text
-                              style={{
-                                color: numColumns === num ? '#fff' : '#1f2937',
-                                fontWeight: '600',
-                              }}
+                    <View style={{ width }} className="px-6">
+                        <Text className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">
+                            Grid Columns
+                        </Text>
+                        <View className="flex-row flex-wrap gap-3">
+                            {[2, 3, 4, 5].map((num) => (
+                            <Pressable
+                                key={num}
+                                onPress={() => setNumColumns(num)}
+                                className={`px-5 py-2.5 rounded-xl border ${
+                                    numColumns === num 
+                                    ? 'bg-pink-500 border-pink-500' 
+                                    : 'bg-gray-100 dark:bg-gray-800 border-transparent'
+                                }`}
                             >
-                              {num} columns
-                            </Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
+                                <Text
+                                    className={`font-semibold ${
+                                        numColumns === num ? 'text-white' : 'text-gray-700 dark:text-gray-300'
+                                    }`}
+                                >
+                                {num}
+                                </Text>
+                            </Pressable>
+                            ))}
+                        </View>
                     </View>
                   )}
                 </Animated.View>
               </View>
             )}
 
+            {/* --- MANGA FILTER --- */}
             {filterContext === 'manga' && (
-              <View style={styles.content}>
-                <Text style={[styles.title, { color: isDark ? '#fff' : '#1f2937' }]}>Sort by</Text>
-                {['rating', 'followedCount', 'createdAt', 'updatedAt'].map((order) => (
-                  <TouchableOpacity
-                    key={order}
-                    onPress={() => updateFilter('orderBy', order)}
-                    style={styles.row}
-                  >
-                    <View
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 6,
-                        backgroundColor: filters?.orderBy === order ? '#ec4899' : '#ccc',
-                      }}
-                    />
-                    <Text style={[styles.label, { marginLeft: 10, color: isDark ? '#fff' : '#1f2937' }]}>
-                      {order}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-
-                <Text style={[styles.title, { marginTop: 20, color: isDark ? '#fff' : '#1f2937' }]}>
-                  Direction
+              <View className="px-6">
+                <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">Sort Options</Text>
+                
+                <Text className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">
+                    Sort By
                 </Text>
-                {['asc', 'desc'].map((dir) => (
-                  <TouchableOpacity
-                    key={dir}
-                    onPress={() => updateFilter('direction', dir)}
-                    style={styles.row}
-                  >
-                    <View
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 6,
-                        backgroundColor: filters?.direction === dir ? '#ec4899' : '#ccc',
-                      }}
-                    />
-                    <Text style={[styles.label, { marginLeft: 10, color: isDark ? '#fff' : '#1f2937' }]}>
-                      {dir === 'asc' ? 'Ascending' : 'Descending'}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                <View className="flex-row flex-wrap gap-2 mb-6">
+                    {['rating', 'followedCount', 'createdAt', 'updatedAt'].map((order) => (
+                    <Pressable
+                        key={order}
+                        onPress={() => updateFilter('orderBy', order)}
+                        className={`px-4 py-2 rounded-full border ${
+                            filters?.orderBy === order
+                            ? 'bg-pink-500 border-pink-500'
+                            : 'bg-transparent border-gray-300 dark:border-gray-600'
+                        }`}
+                    >
+                        <Text className={`text-sm font-medium ${
+                            filters?.orderBy === order ? 'text-white' : 'text-gray-700 dark:text-gray-300'
+                        }`}>
+                            {order === 'followedCount' ? 'Follows' : 
+                             order === 'createdAt' ? 'Added' : 
+                             order === 'updatedAt' ? 'Updated' : 
+                             order.charAt(0).toUpperCase() + order.slice(1)}
+                        </Text>
+                    </Pressable>
+                    ))}
+                </View>
+
+                <Text className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3 uppercase tracking-wider">
+                    Direction
+                </Text>
+                <View className="flex-row gap-3">
+                    {['asc', 'desc'].map((dir) => (
+                    <Pressable
+                        key={dir}
+                        onPress={() => updateFilter('direction', dir)}
+                        className={`flex-1 flex-row items-center justify-center px-4 py-3 rounded-xl border ${
+                            filters?.direction === dir
+                            ? 'bg-pink-500/10 border-pink-500'
+                            : 'bg-gray-50 dark:bg-gray-800 border-transparent'
+                        }`}
+                    >
+                        <Ionicons 
+                            name={dir === 'asc' ? 'arrow-up' : 'arrow-down'} 
+                            size={18} 
+                            color={filters?.direction === dir ? '#ec4899' : isDark ? '#9ca3af' : '#4b5563'} 
+                        />
+                        <Text className={`ml-2 font-medium ${
+                            filters?.direction === dir ? 'text-pink-500' : 'text-gray-700 dark:text-gray-300'
+                        }`}>
+                            {dir === 'asc' ? 'Ascending' : 'Descending'}
+                        </Text>
+                    </Pressable>
+                    ))}
+                </View>
               </View>
             )}
           </Animated.View>
@@ -247,82 +270,7 @@ const FilterModal = forwardRef<Modalize, FilterModalProps>(
   }
 );
 
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalBackground: {
-    flex: 1,
-  },
-  modalContainer: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: 20,
-    maxHeight: height * 0.7,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 8,
-    marginBottom: 10,
-  },
-  content: {
-    padding: 20,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 15,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 12,
-  },
-  label: {
-    fontSize: 18,
-    marginLeft: 10,
-  },
-  tabBar: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    paddingHorizontal: 16,
-  },
-  tabItem: {
-    paddingVertical: 10,
-    marginRight: 24,
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#ec4899',
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  columnsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  chip: {
-    backgroundColor: '#e5e7eb',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-  },
-  chipSelected: {
-    backgroundColor: '#ec4899',
-  },
-});
+
 
 FilterModal.displayName = 'FilterModal';
 export default FilterModal;

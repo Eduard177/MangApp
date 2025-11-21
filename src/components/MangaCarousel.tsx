@@ -40,6 +40,7 @@ interface MangaCarouselProps {
   initialData?: any[];
   data?: string; // genderId u otro dato contextual
   filters?: Filters;
+  reloadTrigger?: boolean;
 }
 
 function MangaCarousel({
@@ -48,6 +49,7 @@ function MangaCarousel({
   data,
   filters = {},
   initialData = [],
+  reloadTrigger,
 }: Readonly<MangaCarouselProps>) {
   const [mangas, setMangas] = useState<any[]>(initialData);
   const [offset, setOffset] = useState(initialData.length);
@@ -77,12 +79,16 @@ function MangaCarousel({
 
   useEffect(() => {
     loadMore(true);
-  }, [filters]);
+  }, [filters, reloadTrigger]);
 
   const loadMore = async (replace = false) => {
     if (!fetchFunction || loading || (!hasMore && !replace)) return;
 
     setLoading(true);
+    if (replace) {
+      setMangas([]);
+    }
+
     try {
       const newData = await fetchFunction(LIMIT, replace ? 0 : offset, filters, data);
       const filtered = newData?.filter((item: any) =>

@@ -15,9 +15,10 @@ interface Props {
     completed?: boolean;
     started?: boolean;
   };
+  reloadTrigger?: boolean;
 }
 
-export default function SavedMangasGrid({ numColumns = 3, filters = {} }: Readonly<Props>) {
+export default function SavedMangasGrid({ numColumns = 3, filters = {}, reloadTrigger }: Readonly<Props>) {
   const [savedMangas, setSavedMangas] = useState<any[]>([]);
   const [filteredMangas, setFilteredMangas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +85,7 @@ export default function SavedMangasGrid({ numColumns = 3, filters = {} }: Readon
     };
 
     load();
-  }, [filters]);
+  }, [filters, reloadTrigger]);
 
   const itemWidth = Dimensions.get('window').width / numColumns - 16;
 

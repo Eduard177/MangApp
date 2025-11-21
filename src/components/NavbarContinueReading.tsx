@@ -42,7 +42,7 @@ export default function NavbarContinueReading({
           onPress={() =>
             navigation.reset({
               index: 0,
-              routes: [{ name: 'Home' }],
+              routes: [{ name: 'Root' }],
             })
           }
           className="mr-4"

@@ -55,8 +55,6 @@ export default function ExploreScreen() {
 
   const handlePageReload = () => {
     setReloadFlag((prev) => !prev);
-    const currentRoute = navigation.getState().routes[navigation.getState().index];
-    navigation.replace(currentRoute.name, currentRoute.params);
   };
 
   return (
@@ -75,6 +73,7 @@ export default function ExploreScreen() {
             fetchFunction={item.fetchFunction}
             data={item?.data}
             filters={manga}
+            reloadTrigger={reloadFlag}
           />
         )}
         initialNumToRender={2}
