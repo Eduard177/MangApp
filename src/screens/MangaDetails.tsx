@@ -54,6 +54,13 @@ export default function MangaDetailScreen() {
   const [continueButtonText, setContinueButtonText] = useState('Empezar a leer');
   const [targetChapterId, setTargetChapterId] = useState<string | null>(null);
   const isDark = colorScheme === 'dark';
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -110,30 +117,66 @@ export default function MangaDetailScreen() {
 
 
   const handleDownloadAllChapters = async () => {
-    setIsDownloadingAll(true);
-    const allChapters = await fetchAllChapters(manga.id);
-
-    Toast.show({
-      type: 'info',
-      text1: 'Iniciando descarga...',
-      text2: `Total capítulos: ${allChapters.length}`,
-      visibilityTime: 1500,
-      autoHide: false,
-    });
-
-    queueDownload(async () => {
-      await downloadManga(manga.id, allChapters, (completed) => {
+    if (isDownloadingAll) return;
+    
+    try {
+      const allChapters = await fetchAllChapters(manga.id);
+      
+      if (!allChapters || allChapters.length === 0) {
         Toast.show({
-          type: 'info',
-          text1: 'Descargando...',
-          text2: `Capítulo ${completed}/${allChapters.length}`,
-          autoHide: false,
-          visibilityTime: 1500,
+          type: 'error',
+          text1: 'Error',
+          text2: 'No chapters available to download.',
         });
-      });
-    });
+        return;
+      }
 
-    setIsDownloadingAll(false);
+      if (isMounted.current) setIsDownloadingAll(true);
+
+      Toast.show({
+        type: 'info',
+        text1: 'Download Started',
+        text2: `Queued ${allChapters.length} chapters...`,
+        visibilityTime: 2000,
+      });
+
+      await queueDownload(async () => {
+        try {
+          await downloadManga(manga.id, allChapters, (completed) => {
+             if (completed % 5 === 0) {
+                Toast.show({
+                  type: 'info',
+                  text1: 'Downloading...',
+                  text2: `${completed}/${allChapters.length} chapters`,
+                  visibilityTime: 1000,
+                });
+             }
+          });
+          
+          if (isMounted.current) {
+            setIsDownloaded(true);
+            setRefreshKey((prev) => prev + 1);
+          }
+        } catch (error) {
+          console.error('Download task error:', error);
+          Toast.show({
+            type: 'error',
+            text1: 'Download Failed',
+            text2: 'An error occurred during the download process.',
+          });
+        }
+      });
+
+    } catch (e) {
+      console.error('Error preparing download:', e);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Could not fetch chapters information.',
+      });
+    } finally {
+      if (isMounted.current) setIsDownloadingAll(false);
+    }
   };
 
   const fetchChapters = async () => {
@@ -156,6 +199,7 @@ export default function MangaDetailScreen() {
     setReverseOrder((prev) => !prev);
     setOffset(0);
     setChapters([]);
+    setHasMore(true);
   };
 
   const getAuthorName = async () => {

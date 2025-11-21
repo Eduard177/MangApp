@@ -49,11 +49,8 @@ export default function HomeScreen() {
       <FilterModal
         ref={filterRef}
         filterContext="home"
-        filters={{ ...home, orderBy: 'title', direction: 'asc' }}
+        filters={home}
         setFilters={(newFilters) => setFilter('home', newFilters)}
-        onFilterChange={(newFilters) => {
-          setFilter('home', newFilters);
-        }}
         numColumns={numColumns}
         setNumColumns={setNumColumns}
       />

@@ -76,13 +76,34 @@ export default function ChapterReaderScreen() {
           return;
         }
 
-        const firstImage = `${res.baseUrl}/data/${res.chapter.hash}/${res.chapter.data[0]}`;
-        await Image.prefetch(firstImage);
-
         const imagesList = res.chapter.data.map(
           (name: string) => `${res.baseUrl}/data/${res.chapter.hash}/${name}`
         );
         setImages(imagesList);
+
+        // Optimización de carga: Precarga progresiva por lotes (Chunk Loading)
+        const preloadImages = async () => {
+          try {
+            // 1. Prioridad Alta: Cargar las primeras 3 imágenes inmediatamente para que el usuario pueda empezar a leer
+            await Promise.all(imagesList.slice(0, 3).map((url) => Image.prefetch(url)));
+
+            // 2. Carga progresiva del resto en lotes (chunks) para no saturar la red ni la memoria
+            const chunkSize = 5;
+            for (let i = 3; i < imagesList.length; i += chunkSize) {
+              const chunk = imagesList.slice(i, i + chunkSize);
+              // Precargamos el lote actual
+              await Promise.all(chunk.map((url) => Image.prefetch(url)));
+              // Pequeña pausa para liberar recursos si es necesario
+              await new Promise(resolve => setTimeout(resolve, 100));
+            }
+          } catch (err) {
+            console.warn('Error en precarga de imágenes:', err);
+          }
+        };
+        
+        // Iniciamos la precarga sin bloquear el renderizado
+        preloadImages();
+
         if (!incognito) await saveMangaToContinueReading(mangaData, chapterId);
       } catch (e) {
         console.error('Error fetching chapter:', e);

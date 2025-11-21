@@ -19,7 +19,7 @@ interface Props {
 }
 
 export default function SavedMangasGrid({ numColumns = 3, filters = {}, reloadTrigger }: Readonly<Props>) {
-  const [savedMangas, setSavedMangas] = useState<any[]>([]);
+  const [processedMangas, setProcessedMangas] = useState<any[]>([]);
   const [filteredMangas, setFilteredMangas] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -50,33 +50,14 @@ export default function SavedMangasGrid({ numColumns = 3, filters = {}, reloadTr
     return fileName ? `https://uploads.mangadex.org/covers/${item.manga.id}/${fileName}.256.jpg` : null;
   };
 
+  // Carga inicial de datos
   useEffect(() => {
     const load = async () => {
       setLoading(true);
       try {
         const data = await getSavedMangas();
         const mangasConProgreso = await Promise.all(data.map(processMangaItem));
-
-        let result = mangasConProgreso;
-
-        if (filters.onlyDownloaded) {
-          result = result.filter((m) => m.isDownloaded);
-        }
-
-        if (filters.unread) {
-          result = result.filter((m) => m.readChapters.length === 0);
-        }
-
-        if (filters.completed) {
-          result = result.filter((m) => m.totalChapters > 0 && m.readChapters.length === m.totalChapters);
-        }
-
-        if (filters.started) {
-          result = result.filter((m) => m.readChapters.length > 0 && m.readChapters.length < m.totalChapters);
-        }
-
-        setSavedMangas(data);
-        setFilteredMangas(result);
+        setProcessedMangas(mangasConProgreso);
       } catch (e) {
         console.error('Error loading saved mangas:', e);
       } finally {
@@ -85,7 +66,30 @@ export default function SavedMangasGrid({ numColumns = 3, filters = {}, reloadTr
     };
 
     load();
-  }, [filters, reloadTrigger]);
+  }, [reloadTrigger]);
+
+  // Efecto para filtrar los datos cuando cambian los filtros
+  useEffect(() => {
+    let result = processedMangas;
+
+    if (filters.onlyDownloaded) {
+      result = result.filter((m) => m.isDownloaded);
+    }
+
+    if (filters.unread) {
+      result = result.filter((m) => m.readChapters.length === 0);
+    }
+
+    if (filters.completed) {
+      result = result.filter((m) => m.totalChapters > 0 && m.readChapters.length === m.totalChapters);
+    }
+
+    if (filters.started) {
+      result = result.filter((m) => m.readChapters.length > 0 && m.readChapters.length < m.totalChapters);
+    }
+
+    setFilteredMangas(result);
+  }, [filters, processedMangas]);
 
   const itemWidth = Dimensions.get('window').width / numColumns - 16;
 
